@@ -1,0 +1,73 @@
+@import '../styles/colors';
+
+.Headline {
+	position: absolute;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(0px 0px 99.9% 99.9%);
+	overflow: hidden;
+	height: 1px;
+	width: 1px;
+	padding: 0;
+	border: 0;
+}
+
+.Page {
+	height: 100vh;
+	max-width: 100vw;
+	display: flex;
+	position: relative;
+	background-color: $background-main-light-color;
+	overflow-y: hidden;
+}
+
+.PageRight {
+	flex-grow: 1;
+}
+
+.PageMain {
+	box-sizing: border-box;
+	max-width: 100%;
+	height: 100%;
+	overflow-y: scroll;
+	scrollbar-width: none;
+	padding-bottom: 48px;
+}
+
+.PageMain::-webkit-scrollbar {
+	display: none;
+}
+
+.MainContent {
+	margin: auto;
+	padding: 48px 32px;
+	display: flex;
+	flex-direction: column;
+	gap: 48px;
+	max-width: 1504px;
+
+	width: 100%;
+	min-height: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+	.MainContent {
+		gap: 32px;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.MainContent {
+		padding: 40px 32px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.MainContent {
+		padding: 32px 16px;
+	}
+}
+
+//Darkmode
+.PageDark {
+	background-color: $background-main-dark-color;
+}

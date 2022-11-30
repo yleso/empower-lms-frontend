@@ -1,0 +1,34 @@
+@import '../../styles/colors';
+
+.LoaderBackground {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	inset: 0;
+	background-color: $system-white-color;
+	z-index: 1001;
+}
+
+.Loader {
+	width: 72px;
+	height: 72px;
+	border: 5px solid rgba($brand-light-color, 1);
+	border-radius: 50%;
+	border-left-color: $brand-main-color;
+	animation: loader 1.3s linear infinite;
+}
+
+@keyframes loader {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+//Darkmode
+
+.LoaderBackgroundDark {
+	background-color: $background-secondary-dark-color;
+}

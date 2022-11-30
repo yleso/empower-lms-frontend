@@ -1,0 +1,17 @@
+{
+  "company": "Skoda",
+  "brand-dark-color": "#004A0F",
+  "brand-hover-color": "#007617",
+  "brand-main-color": "#00BE26",
+  "brand-light-color": "#E5FFEA",
+  "grey-primary-color": "#888888",
+  "grey-secondary-light-color": "#dcdcdc",
+  "grey-secondary-dark-color": "#131313",
+  "background-main-light-color": "#f5f5f5",
+  "background-main-dark-color": "#1f1f1f",
+  "background-secondary-dark-color": "#2d2d2d",
+  "system-red-color": "#fe6767",
+  "system-green-color": "#4dff3e",
+  "system-black-color": "#000000",
+  "system-white-color": "#ffffff"
+}

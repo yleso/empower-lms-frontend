@@ -1,0 +1,13 @@
+@import '@/styles/colors.scss';
+
+.DeleteButton {
+  display: flex;
+  align-items: center;
+
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+
+  color: $system-white-color;
+  background-color: $system-red-color;
+}

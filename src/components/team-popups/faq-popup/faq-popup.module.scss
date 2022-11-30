@@ -1,0 +1,35 @@
+@import '@/styles/colors';
+
+.Content {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	justify-content: center;
+	position: relative;
+}
+
+.PopupGrid {
+	width: 304px;
+	display: flex;
+	gap: 16px;
+	flex-direction: column;
+}
+
+.Field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	justify-content: flex-start;
+}
+
+.TeamInput {
+	display: none;
+}
+
+//Darkmode
+
+.ContentDark {
+	label {
+		color: $system-white-color;
+	}
+}

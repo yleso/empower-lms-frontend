@@ -1,0 +1,31 @@
+@import '@/styles/colors';
+
+.PopupContent {
+	position: fixed;
+	padding: 32px;
+	background-color: $system-white-color;
+	border-radius: 16px;
+}
+
+.Popup {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba($system-black-color, 0.25);
+	z-index: 999;
+	inset: 0;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+//Darkmode
+
+.PopupDark {
+	background-color: rgba($system-black-color, 0.5);
+
+	.PopupContent {
+		background-color: $background-secondary-dark-color;
+	}
+}

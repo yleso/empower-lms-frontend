@@ -1,0 +1,59 @@
+@import '@/styles/colors';
+
+.RadioWrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+}
+
+.Input {
+	display: none;
+}
+
+.RadioCircle {
+	border-radius: 50%;
+
+	div {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background-color: $brand-main-color;
+	}
+}
+
+.RadioCircle {
+	width: 16px;
+	height: 16px;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	min-width: 16px;
+	min-height: 16px;
+
+	border: 1px solid $brand-main-color;
+
+	& > * {
+		display: none;
+	}
+}
+
+.Input:checked {
+	& + .RadioCircle {
+		& > * {
+			display: block;
+		}
+	}
+
+	& + .AnswerCheckbox {
+		background-color: $brand-main-color;
+	}
+}
+
+//Darkmode
+
+.RadioWrapperDark {
+	color: $system-white-color;
+}

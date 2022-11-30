@@ -1,0 +1,27 @@
+@import '../../styles/colors';
+
+.Header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.CoursesGrid {
+	margin-top: 16px;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-gap: 32px;
+}
+
+@media screen and (max-width: 480px) {
+	.Header {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.CoursesGrid {
+		margin-top: 24px;
+	}
+}

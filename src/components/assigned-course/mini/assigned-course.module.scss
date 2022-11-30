@@ -1,0 +1,43 @@
+@import '../../../styles/colors';
+
+.Course {
+	padding: 16px;
+	border-radius: 8px;
+	background-color: $system-white-color;
+	display: flex;
+	justify-content: space-between;
+	flex-direction: row;
+	gap: 8px;
+	align-items: center;
+}
+
+.CourseInfo {
+	flex-grow: 1;
+	max-width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+
+	& > * {
+		width: 100%;
+	}
+}
+
+.CourseProgress {
+	min-width: 48px;
+	min-height: 48px;
+	max-width: 48px;
+	max-height: 48px;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+//Darkmode
+
+.CourseDark {
+	color: $system-white-color;
+	background-color: $background-secondary-dark-color;
+}

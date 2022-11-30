@@ -1,0 +1,35 @@
+@import '../../styles/colors';
+
+.Cookies {
+	inset: auto 32px 32px 32px;
+	padding: 16px 32px;
+	position: fixed;
+	max-width: 100%;
+	border-radius: 16px;
+	background-color: $system-white-color;
+	display: flex;
+	gap: 16px;
+	justify-content: space-between;
+	align-items: center;
+	color: $system-black-color;
+
+	box-shadow: 0 0 24px 4px rgba($system-black-color, 0.1);
+
+	span {
+		color: $brand-main-color;
+	}
+}
+
+.CookiesButton {
+	display: flex;
+	color: $brand-main-color;
+}
+
+//Darkmode
+
+.CookiesDark {
+	color: $system-white-color;
+	background-color: $background-secondary-dark-color;
+
+	box-shadow: 0 0 24px 4px rgba($system-black-color, 0.24);
+}

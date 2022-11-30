@@ -1,0 +1,23 @@
+@import '../../styles/colors';
+
+.Certificate {
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+	gap: 4px;
+	justify-content: center;
+	align-items: center;
+	background-color: $system-white-color;
+	border-radius: 8px;
+
+	& > * {
+		text-align: center;
+	}
+}
+
+//Darkmode
+
+.CertificateDark {
+	background-color: $background-secondary-dark-color;
+	color: $system-white-color;
+}

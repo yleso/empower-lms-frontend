@@ -1,0 +1,93 @@
+//Fonts
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans&family=Roboto&family=Ubuntu&display=swap');
+
+.LessonTextEditor,
+#LessonTextEditor {
+	//Global
+	* {
+		line-height: 1.2;
+		font-size: inherit;
+	}
+
+	.ql-editor::grammar-error {
+		text-decoration: none;
+		color: red;
+	}
+
+	//Text sizes
+	.ql-size-extra-small {
+		font-size: 14px;
+	}
+
+	.ql-size-small {
+		font-size: 16px;
+	}
+
+	p {
+		font-size: 18px;
+	}
+
+	.ql-size-large {
+		font-size: 22px;
+	}
+
+	//Headline
+	h1 {
+		font-size: 42px;
+	}
+
+	h2 {
+		font-size: 38px;
+	}
+
+	h3 {
+		font-size: 34px;
+	}
+
+	h4 {
+		font-size: 30px;
+	}
+
+	h5 {
+		font-size: 26px;
+	}
+
+	h6 {
+		font-size: 22px;
+	}
+
+	//Lists
+	li {
+		font-size: 16px;
+
+		&::before {
+			font-size: 16px;
+		}
+	}
+
+	//Fonts
+	p {
+		font-family: 'PT Sans';
+		font-style: normal;
+	}
+
+	.ql-font-arial {
+		font-family: 'Arial';
+		font-style: normal;
+	}
+
+	.ql-font-helvetica {
+		font-family: 'Helvetica';
+		font-style: normal;
+	}
+
+	.ql-font-ubuntu {
+		font-family: 'Ubuntu';
+		font-style: normal;
+	}
+
+	.ql-font-roboto {
+		font-family: 'Roboto';
+		font-style: normal;
+	}
+}

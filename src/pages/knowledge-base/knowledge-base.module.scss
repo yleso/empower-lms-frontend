@@ -1,0 +1,32 @@
+@import '@/styles/colors';
+
+.DepartmentSectionsGrid {
+	margin-top: 16px;
+	display: grid;
+	grid-gap: 32px;
+	grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+	justify-items: stretch;
+
+	a {
+		display: flex;
+		justify-content: center;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.DepartmentSectionsGrid {
+		grid-gap: 16px;
+	}
+}
+
+@media screen and (max-width: 640px) {
+	.DepartmentSectionsGrid {
+		grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.DepartmentSectionsGrid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}

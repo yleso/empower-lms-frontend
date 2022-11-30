@@ -1,0 +1,59 @@
+@import '../../../styles/colors';
+
+.Menu {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.MenuItem {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	width: 224px;
+	height: 40px;
+	border-radius: 4px;
+	gap: 8px;
+	padding: 0 16px;
+	font-size: 12px;
+	font-weight: bold;
+	color: $grey-primary-color;
+
+	&:hover {
+		color: $brand-main-color;
+	}
+}
+
+.MenuItemActive {
+	color: $brand-main-color;
+	background-color: $brand-light-color;
+}
+
+.ItemTitle {
+	font-size: 12px;
+	font-weight: bold;
+	transition: 0.2s;
+}
+
+@media screen and (max-width: 1024px) {
+	.MenuItem {
+		padding: 0;
+		width: 40px;
+		justify-content: center;
+	}
+
+	.ItemTitle {
+		display: none;
+	}
+}
+
+//Darkmode
+
+.MenuItemDark:hover {
+	color: $system-white-color;
+}
+
+.MenuItemActiveDark {
+	color: $system-white-color;
+	background-color: $brand-dark-color;
+}

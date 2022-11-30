@@ -1,0 +1,26 @@
+@import '@/styles/colors';
+
+.AddSectionElement {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+
+	padding: 16px 32px;
+	border-radius: 8px;
+	background-color: $system-white-color;
+
+	cursor: pointer;
+
+	span {
+		color: $brand-main-color;
+		font-size: 1.4em;
+		font-weight: normal;
+	}
+}
+
+//Darkmode
+
+.AddSectionElementDark {
+	background-color: $background-secondary-dark-color;
+	color: $system-white-color;
+}

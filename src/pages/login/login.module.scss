@@ -1,0 +1,134 @@
+@import '../../styles/colors';
+
+.Page {
+	display: grid;
+	grid-template-columns: 312px auto;
+	grid-gap: 0;
+}
+
+.Sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+	align-items: center;
+	justify-content: center;
+	padding: 64px 32px;
+	height: 100vh;
+	background-color: $background-main-light-color;
+	border-right: 2px solid $grey-secondary-light-color;
+}
+
+.SidebarTop {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+
+.SidebarLogo {
+	width: 64px;
+	height: 64px;
+}
+
+.Form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	width: 100%;
+	max-width: 248px;
+
+	button {
+		margin-top: 16px;
+	}
+}
+
+.AuthLoginError {
+	color: $system-red-color;
+	text-align: center;
+}
+
+.FormInput {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	justify-content: flex-start;
+	width: 100%;
+}
+
+.Guide {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	padding: 64px 32px;
+}
+
+.GuideContent {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+	text-align: center;
+}
+
+.GuideVideo {
+	width: 640px;
+	height: 360px;
+
+	box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+}
+
+.Top {
+	img {
+		display: block;
+	}
+}
+
+//Darkmode
+
+.SidebarDark {
+	background-color: $background-secondary-dark-color;
+	border-color: $grey-secondary-dark-color;
+
+	label {
+		color: $system-white-color;
+	}
+
+	.SidebarTop p {
+		color: $system-white-color;
+	}
+}
+
+.GuideDark {
+	background-color: $background-main-dark-color;
+
+	.GuideTitle {
+		color: $system-white-color;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.GuideVideo {
+		max-width: 480px;
+		height: 270px;
+	}
+}
+
+@media screen and (max-width: 860px) {
+	.Page {
+		grid-template-columns: 1fr;
+	}
+
+	.Sidebar {
+		height: auto;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.GuideVideo {
+		width: 280px;
+		height: 158px;
+	}
+}

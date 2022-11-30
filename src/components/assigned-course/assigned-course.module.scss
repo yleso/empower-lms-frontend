@@ -1,0 +1,92 @@
+@import '../../styles/colors';
+
+.Course {
+	border-radius: 16px;
+	display: flex;
+	gap: 32px;
+	justify-content: space-between;
+	padding: 40px 32px;
+	min-height: 232px;
+	background-color: $system-white-color;
+}
+
+.CourseContent {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 12px;
+	flex-grow: 1;
+	max-width: 600px;
+}
+
+.CourseInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.CourseIcons {
+	display: flex;
+	gap: 8px;
+
+	& > * {
+		width: 24px;
+	}
+}
+
+.CourseName {
+	color: $brand-main-color;
+}
+
+.CourseDescription {
+}
+
+.CourseResults {
+	display: flex;
+	gap: 16px;
+}
+
+.CourseResult {
+}
+
+.ResultGot {
+}
+
+.ResultTotal {
+}
+
+.ResultName {
+}
+
+.CourseProgress {
+	min-width: 152px;
+	min-height: 152px;
+	max-width: 152px;
+	max-height: 152px;
+}
+
+@media screen and (max-width: 640px) {
+	.Course {
+		flex-direction: column;
+		padding: 24px 16px;
+	}
+
+	.CourseResults {
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+}
+
+//Darkmode
+
+.CourseDark {
+	background-color: $background-secondary-dark-color;
+
+	.CourseContent {
+		color: $system-white-color;
+	}
+
+	.CourseResults {
+		color: $system-white-color;
+	}
+}

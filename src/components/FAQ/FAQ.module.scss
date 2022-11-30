@@ -1,0 +1,52 @@
+@import '../../styles/colors';
+
+.FAQ {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	padding: 16px 32px;
+	border-radius: 8px;
+	background-color: $system-white-color;
+
+	cursor: pointer;
+
+	.FAQAnswer {
+		display: none;
+		transition: 0.4s ease-out;
+	}
+
+	svg {
+		transition: 0.4s ease-out;
+	}
+}
+
+.FAQOpened {
+	.FAQAnswer {
+		display: block;
+	}
+
+	svg {
+		rotate: 135deg;
+	}
+}
+
+.FAQHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+@media screen and (max-width: 360px) {
+	.FAQ {
+		padding: 16px;
+	}
+}
+
+//Darkmode
+
+.FAQDark {
+	background-color: $background-secondary-dark-color;
+	color: $system-white-color;
+}

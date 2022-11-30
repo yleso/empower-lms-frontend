@@ -1,0 +1,13 @@
+@import '@/styles/colors.scss';
+
+.EditButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 20px;
+  height: 20px;
+  color: $system-white-color;
+  border-radius: 50%;
+  background-color: $grey-primary-color;
+}

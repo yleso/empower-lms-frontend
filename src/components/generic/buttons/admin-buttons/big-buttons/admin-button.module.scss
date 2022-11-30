@@ -1,0 +1,17 @@
+@import '../../../../../styles/colors';
+
+.Button {
+	color: $system-white-color;
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	height: 20px;
+	border-radius: 10px;
+	background-color: $brand-main-color;
+	padding: 0 16px;
+	transition: 0.2s;
+}
+
+.Button:hover {
+	background-color: $brand-hover-color;
+}

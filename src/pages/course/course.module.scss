@@ -1,0 +1,195 @@
+@import '../../styles/colors';
+
+.Section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.Header {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.CourseEdit {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.CourseMainInfo {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.CourseName {
+	flex-grow: 1;
+}
+
+.DeleteCourseButton {
+	display: flex;
+	align-items: center;
+
+	width: 24px;
+	height: 24px;
+	border-radius: 4px;
+
+	color: $system-white-color;
+	background-color: $system-red-color;
+}
+
+.DeleteButton {
+	color: $grey-primary-color;
+}
+
+.CourseIcons {
+	display: flex;
+	gap: 8px;
+}
+
+.IconsAdd {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 24px;
+	height: 24px;
+	color: $system-white-color;
+	border-radius: 4px;
+	background-color: $brand-main-color;
+	transition: 0.2s;
+
+	&:hover {
+		background-color: $brand-hover-color;
+	}
+}
+
+.ModulesGrid {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.Module {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	padding: 16px 32px;
+	border-radius: 8px;
+	background-color: $system-white-color;
+
+	cursor: pointer;
+
+	.ModuleContent {
+		display: none;
+		transition: 0.3s ease-out;
+	}
+
+	.ControlsChevron {
+		transition: 0.3s ease-out;
+	}
+}
+
+.ModuleNameEdit {
+	cursor: text;
+}
+
+.ModuleOpened {
+	.ModuleContent {
+		display: flex;
+	}
+
+	.ControlsChevron {
+		rotate: 180deg;
+	}
+}
+
+.ModuleContent {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	align-items: flex-start;
+}
+
+.ModuleSection {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.ModuleHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.ModuleControls {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.ModuleAdds {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+
+	button span {
+		color: $brand-main-color;
+		font-size: 1.4em;
+	}
+}
+
+.ModuleCreate {
+	align-items: center;
+
+	span {
+		color: $brand-main-color;
+		font-size: 1.4em;
+		font-weight: normal;
+	}
+}
+
+.ModuleContentNameEdit {
+	cursor: text;
+}
+
+@media screen and (max-width: 360px) {
+	.CourseMainInfo {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.CourseIcons {
+		order: -1;
+	}
+
+	.Module {
+		padding: 16px;
+	}
+}
+
+//Darkmode
+
+.CourseDark {
+	color: $system-white-color;
+
+	.Module {
+		background-color: $background-secondary-dark-color;
+	}
+
+	.ModuleAdds button {
+		color: $system-white-color;
+	}
+
+	.LessonName {
+		color: $system-white-color;
+	}
+}

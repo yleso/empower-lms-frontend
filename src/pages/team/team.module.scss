@@ -1,0 +1,158 @@
+@import '@/styles/colors';
+
+.Section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.Header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.HeaderButtons {
+	display: flex;
+	gap: 8px;
+}
+
+.HeaderTitle {
+	display: flex;
+	gap: 8px;
+}
+
+.MyTeam {
+	margin-top: 13px;
+	color: $grey-primary-color;
+}
+
+.CursorPointer {
+	cursor: pointer;
+}
+
+//Courses
+
+.CoursesGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	grid-gap: 32px;
+}
+
+//Team
+
+.TeamGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	grid-gap: 32px;
+}
+
+//Materials
+
+.MaterialsGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+	grid-gap: 32px;
+}
+
+//Glossary
+
+.GlossaryList {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-gap: 32px;
+}
+
+.GlossaryWord {
+	color: $system-black-color;
+
+	&.GlossaryWordDark {
+		color: $system-white-color;
+	}
+
+	span {
+		color: $brand-main-color;
+		display: inline-block;
+	}
+}
+
+.GlossaryFilters {
+	max-width: 100%;
+	flex-grow: 1;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: center;
+
+	li button {
+		color: $brand-main-color;
+	}
+}
+
+.GlossaryActiveFilter {
+	font-weight: bold;
+}
+
+//FAQ
+
+.FAQGrid {
+	max-width: 100%;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-gap: 8px;
+}
+
+@media screen and (min-width: 1536px) {
+	//Glossary
+	.GlossaryList {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media screen and (min-width: 1440px) {
+	//Courses
+	.CoursesGrid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
+@media screen and (max-width: 768px) {
+	//Courses
+	.CoursesGrid {
+		grid-template-columns: repeat(2, 1fr);
+		grid-gap: 16px;
+	}
+	//Team
+	.TeamGrid {
+		grid-gap: 16px;
+	}
+	//Materials
+	.MaterialsGrid {
+		grid-gap: 16px;
+	}
+	//Glossary
+	.GlossaryHeader {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.GlossaryFilters {
+		order: 3;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	//Courses
+	.CoursesGrid {
+		grid-template-columns: 1fr;
+	}
+
+	.HeaderTitle {
+		gap: 4px;
+	}
+
+	//Glossary
+	.GlossaryList {
+		grid-template-columns: 1fr;
+	}
+}

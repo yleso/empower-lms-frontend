@@ -1,0 +1,174 @@
+@import '@/styles/colors';
+
+.DragAndDrop {
+	border-radius: 16px;
+	width: 256px;
+	height: 128px;
+	padding: 16px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+
+	background-color: $grey-primary-color;
+	color: $system-white-color;
+
+	cursor: pointer;
+
+	transition: 0.2s;
+}
+
+#UploadAvatar {
+	display: none;
+}
+
+.Profile {
+	padding: 32px;
+	display: flex;
+	gap: 32px;
+	flex-direction: column;
+	max-width: 100%;
+	border-radius: 16px;
+	background-color: $system-white-color;
+	align-items: flex-start;
+}
+
+.ProfileInfo {
+	display: flex;
+	gap: 32px;
+	width: 100%;
+}
+
+.ProfileAvatar {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	justify-content: center;
+	align-items: center;
+
+	div {
+		border-radius: 8px;
+	}
+
+	button {
+		color: $brand-main-color;
+	}
+}
+
+.ProfileGrid {
+	flex-grow: 1;
+	width: 100%;
+	display: grid;
+	grid-gap: 16px;
+	grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+}
+
+.ProfileInput {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.PasswordChange {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	button {
+		margin-top: 8px;
+	}
+}
+
+.SwitchSection {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.Switcher {
+	display: flex;
+	gap: 8px;
+
+	div {
+		min-height: 100%;
+		width: 1.6px;
+		background-color: $grey-primary-color;
+	}
+}
+
+.AssignedGrid {
+	display: grid;
+	grid-gap: 16px;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.CertificatesGrid {
+	display: grid;
+	grid-gap: 16px;
+	grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+}
+
+.SwitcherPoint {
+	font-family: inherit;
+	color: $grey-primary-color;
+}
+
+.SwitcherPointActive {
+	font-family: inherit;
+	font-weight: 500;
+	color: $system-black-color;
+}
+
+.SwitcherPointActiveDark {
+	font-family: inherit;
+	font-weight: 500;
+	color: $system-white-color;
+}
+
+@media screen and (max-width: 1024px) {
+	.ProfileGrid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.ProfileInfo {
+		flex-direction: column;
+	}
+
+	.ProfileInput div {
+		max-width: 100%;
+	}
+
+	.ProfileGrid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.Profile {
+		gap: 16px;
+		padding: 24px;
+	}
+
+	.ProfileGrid {
+		grid-template-columns: 1fr;
+	}
+
+	.CertificatesGrid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+//Darkmode
+
+.ProfileDark {
+	background-color: $background-secondary-dark-color;
+
+	.ProfileInput {
+		h6 {
+			color: $system-white-color;
+		}
+	}
+}

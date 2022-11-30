@@ -1,0 +1,12 @@
+@import '@/styles/colors';
+
+.Container {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+
+	&,
+	button {
+		color: $brand-main-color;
+	}
+}

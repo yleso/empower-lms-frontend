@@ -1,0 +1,182 @@
+@import '../../styles/colors';
+
+.Test {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 32px;
+	border-radius: 16px;
+	background-color: $system-white-color;
+}
+
+.TestHeader {
+	display: flex;
+	justify-content: space-between;
+}
+
+.TestPagination {
+	display: flex;
+	gap: 16px;
+}
+
+.PaginationPoint {
+	width: 20px;
+	height: 20px;
+
+	color: $system-black-color;
+	background-color: $grey-secondary-light-color;
+
+	font-weight: 500;
+	font-size: 12px;
+	line-height: 14px;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	border-radius: 50%;
+
+	button {
+		color: currentColor;
+	}
+}
+
+.PaginationPointActive {
+	color: $system-white-color;
+	background-color: $brand-main-color;
+}
+
+.Question {
+}
+
+.QuestionForm {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.AnswerWrapper {
+	display: flex;
+	gap: 8px;
+}
+
+.AnswerWrapperEditing {
+	.QuestionAnswer {
+		margin-left: 7px;
+		gap: 15px;
+	}
+}
+
+.QuestionAnswers {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.WrapperEdits {
+	display: flex;
+	gap: 8px;
+}
+
+.QuestionAnswer {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	cursor: pointer;
+}
+
+.QuestionAnswerNameEditing {
+	cursor: text;
+}
+
+.AddButton span {
+	font-size: 1.2rem;
+	color: $brand-main-color;
+}
+
+.AnswerInput {
+	display: none;
+}
+
+.AnswerRadio {
+	border-radius: 50%;
+
+	div {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background-color: $brand-main-color;
+	}
+}
+
+.AnswerCheckbox,
+.AnswerRadio {
+	width: 16px;
+	height: 16px;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	min-width: 16px;
+	min-height: 16px;
+
+	border: 1px solid $brand-main-color;
+
+	color: $system-white-color;
+
+	& > * {
+		display: none;
+	}
+}
+
+.AnswerInput:checked {
+	& + .AnswerCheckbox,
+	& + .AnswerRadio {
+		& > * {
+			display: block;
+		}
+	}
+
+	& + .AnswerCheckbox {
+		background-color: $brand-main-color;
+	}
+}
+
+.AnswerTextInput {
+	max-width: 256px;
+}
+
+@media screen and (max-width: 360px) {
+	.Test {
+		padding: 24px;
+	}
+}
+
+//Darkmode
+
+.TestDark {
+	background-color: $background-secondary-dark-color;
+	color: $system-white-color;
+
+	.PaginationPoint {
+		color: $system-white-color;
+		background-color: $background-main-dark-color;
+	}
+
+	.PaginationPointActive {
+		color: $background-main-dark-color;
+		background-color: $brand-main-color;
+	}
+
+	.AnswerTextInput {
+		background-color: $background-main-dark-color;
+		color: $system-white-color;
+	}
+
+	.AddButton {
+		color: $system-white-color;
+	}
+}

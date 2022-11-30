@@ -1,0 +1,40 @@
+@import '../../styles/colors';
+
+.Material {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 16px;
+	border-radius: 8px;
+	background-color: $system-white-color;
+}
+
+.MaterialInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.MaterialFormat {
+	color: $brand-main-color;
+}
+
+.MaterialLink button {
+	width: 100%;
+}
+
+@media screen and (max-width: 480px) {
+	.Material {
+		button {
+			padding: 0;
+			max-width: 100%;
+		}
+	}
+}
+
+//Darkmode
+
+.MaterialDark {
+	color: $system-white-color;
+	background-color: $background-secondary-dark-color;
+}

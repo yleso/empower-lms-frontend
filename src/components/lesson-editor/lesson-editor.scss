@@ -1,0 +1,78 @@
+@import '@/styles/colors';
+
+.LessonEditor {
+	background-color: $system-white-color;
+	height: 100%;
+	width: 100%;
+	font-size: 14px;
+}
+
+.LessonEditorDark {
+	background-color: $background-secondary-dark-color;
+}
+
+#EditorToolbar {
+	width: 100%;
+	border-radius: 8px 8px 0 0;
+	background-color: $background-main-light-color;
+	border: none;
+
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+
+	.ql-formats {
+		margin: 0;
+	}
+
+	& + #LessonTextEditor {
+		.ql-container {
+			border: 2px solid $background-main-light-color;
+			border-radius: 0 0 8px 8px;
+		}
+
+		//Placeholder
+		.ql-editor::before {
+			font-size: 16px;
+			font-family: 'TT Norms Pro';
+			text-decoration: none;
+			color: $grey-primary-color;
+		}
+	}
+}
+
+//Darkmode
+
+.LessonEditorDark {
+	#EditorToolbar {
+		background-color: $background-main-dark-color;
+
+		& + #LessonTextEditor {
+			.ql-container {
+				border-color: $background-main-dark-color;
+			}
+		}
+
+		.ql-stroke {
+			stroke: $system-white-color;
+		}
+
+		.ql-fill {
+			fill: $system-white-color;
+		}
+
+		.ql-picker {
+			color: $system-white-color;
+		}
+
+		.ql-picker-options {
+			background-color: $background-main-dark-color;
+		}
+	}
+}
+
+#LessonTextEditor {
+	.ql-container {
+		border-color: $background-main-dark-color;
+	}
+}

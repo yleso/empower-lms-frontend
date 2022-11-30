@@ -1,0 +1,62 @@
+@import '@/styles/colors';
+
+.Button {
+	border: none;
+	outline: none;
+	transition: 0.2s;
+}
+
+.ButtonStroke {
+	color: $brand-main-color;
+	transition: 0.2s;
+}
+
+.ButtonStroke {
+	&:hover {
+		color: $system-white-color;
+		background-color: $brand-main-color;
+	}
+
+	&.ButtonDisabled:hover {
+		color: $brand-main-color;
+		background-color: transparent;
+	}
+}
+
+.ButtonLarge.ButtonStroke {
+	border: 2px solid $brand-main-color;
+}
+
+.ButtonSmall.ButtonStroke {
+	border: 1px solid $brand-main-color;
+}
+
+.ButtonFill {
+	color: $system-white-color;
+	background-color: $brand-main-color;
+
+	&:hover {
+		background-color: $brand-hover-color;
+	}
+
+	&.ButtonDisabled:hover {
+		background-color: $brand-main-color;
+	}
+}
+
+.ButtonLarge {
+	height: 40px;
+	border-radius: 8px;
+	padding: 0 32px;
+}
+
+.ButtonSmall {
+	height: 32px;
+	border-radius: 4px;
+	padding: 0 24px;
+}
+
+.ButtonDisabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}

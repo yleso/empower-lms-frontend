@@ -1,0 +1,33 @@
+@import '@/styles/colors';
+
+.EditableTitle {
+	padding: 0;
+	margin: 0;
+	outline: none;
+	border: none;
+	background: none;
+	resize: horizontal;
+	min-width: 100%;
+
+	&:active {
+		width: auto;
+	}
+}
+
+.InputWrapper {
+	position: relative;
+	isolation: isolate;
+}
+
+.Hide {
+	position: absolute;
+	left: 0;
+	opacity: 0;
+	z-index: -1;
+}
+
+//Darkmode
+
+.EditableTitleDark {
+	color: $system-white-color;
+}

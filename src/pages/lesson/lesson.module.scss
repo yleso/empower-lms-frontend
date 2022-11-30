@@ -1,0 +1,49 @@
+@import '@/styles/colors';
+
+.Section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.Header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.HeaderLeft {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.Lesson {
+	border-radius: 16px;
+	padding: 32px;
+	background-color: $system-white-color;
+}
+
+.Wrapper {
+	//border: 1px solid red;
+}
+
+.Editor {
+	background-color: transparent;
+	padding: 1rem;
+	border: 1px solid #ccc;
+}
+
+.Toolbar {
+	border: none;
+	padding: 16px;
+	border-radius: 8px;
+	background-color: $background-main-dark-color;
+}
+
+//Darkmode
+
+.LessonDark {
+	color: $system-white-color;
+	background-color: $background-secondary-dark-color;
+}

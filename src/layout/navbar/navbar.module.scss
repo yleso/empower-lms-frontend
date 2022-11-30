@@ -1,0 +1,194 @@
+@import '../../styles/colors';
+
+.Navbar {
+	height: 56px;
+	display: flex;
+	position: relative;
+	align-items: center;
+	padding: 0 32px;
+	width: 100%;
+	flex-grow: 1;
+	justify-content: space-between;
+	background-color: $system-white-color;
+	border-bottom: 2px solid $grey-secondary-light-color;
+}
+
+.LeftSide {
+	display: flex;
+	align-items: center;
+	gap: 80px;
+}
+
+.NavbarBurger {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.NavbarBurger span {
+	display: block;
+	width: 24px;
+	height: 2px;
+	background-color: $brand-main-color;
+}
+
+.NavbarSearch {
+	border-radius: 16px;
+	width: 256px;
+	height: 32px;
+	display: flex;
+	padding: 0 16px;
+	background-color: $background-main-light-color;
+	color: $grey-primary-color;
+
+	input {
+		font-weight: 400;
+		font-size: 11px;
+		flex-grow: 1;
+		background-color: transparent;
+		border: none;
+		color: $system-black-color;
+	}
+
+	button {
+		color: currentColor;
+	}
+}
+
+.NavbarSearch input::placeholder {
+	color: $grey-primary-color;
+}
+
+.RightSide {
+	display: flex;
+	gap: 16px;
+}
+
+.Profile {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	color: $grey-primary-color;
+	position: relative;
+
+	p {
+		cursor: pointer;
+	}
+
+	button {
+		display: flex;
+		color: currentColor;
+	}
+}
+
+.ProfileAvatar {
+	overflow: hidden;
+	border-radius: 32px;
+	width: 32px;
+	height: 32px;
+}
+
+.ProfileButton {
+	display: flex;
+	align-items: center;
+
+	svg {
+		transition: 0.4s;
+	}
+}
+
+.ProfileButtonRotate {
+	display: flex;
+	align-items: center;
+
+	svg {
+		rotate: 180deg;
+		transition: 0.4s;
+	}
+}
+
+.Icons {
+	display: flex;
+	gap: 16px;
+
+	button {
+		display: flex;
+		align-items: center;
+	}
+}
+
+.Bold {
+	font-weight: bold;
+}
+
+.ProfileDialog {
+	z-index: 999;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	border: 1px solid $grey-primary-color;
+	right: 0;
+	top: 60px;
+	padding: 16px 32px;
+	border-radius: 8px;
+	box-shadow: 0 12px 16px rgba($system-black-color, 0.05);
+}
+
+.ProfileDialogClosed {
+	display: none;
+}
+
+.DialogLogout {
+	margin-top: 8px;
+	display: flex;
+	flex-direction: row;
+	gap: 4px;
+	align-items: center;
+
+	span {
+		color: $brand-main-color;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.NavbarBurger {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.Navbar {
+		padding: 0 16px;
+	}
+
+	.NavbarBurger {
+		display: flex;
+	}
+
+	.NavbarSearch {
+		display: none;
+	}
+}
+
+//Darkmode
+.NavbarDark {
+	background-color: $background-secondary-dark-color;
+	border-color: $grey-secondary-dark-color;
+
+	.NavbarSearch {
+		background-color: $background-main-dark-color;
+
+		input {
+			color: $system-white-color;
+		}
+	}
+}
+
+.NavbarSearchDark {
+}
+
+.ProfileDialogDark {
+	color: $system-white-color;
+	background-color: $background-secondary-dark-color;
+}

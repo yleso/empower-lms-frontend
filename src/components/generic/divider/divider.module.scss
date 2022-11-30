@@ -1,0 +1,11 @@
+@import '../../../styles/colors';
+
+.Divider {
+	width: 100%;
+	height: 1px;
+	background-color: #c4c4c4;
+}
+
+.DividerDark {
+	background-color: $grey-secondary-dark-color;
+}
