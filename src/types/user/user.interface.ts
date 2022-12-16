@@ -1,3 +1,5 @@
+import { UserRoleInterface } from '@/types/role/role.interface'
+
 interface UserAvatarInterface {
 	id: number
 	name: string
@@ -14,13 +16,6 @@ export interface UserTeamInterface {
 	name: string
 }
 
-interface UserRoleInterface {
-	id: number
-	name: string
-	description: string
-	type: string
-}
-
 export interface UserInterface {
 	id: number
 	name: string
@@ -28,7 +23,7 @@ export interface UserInterface {
 	email: string
 	line_manager: string
 	phone: string | null
-	starting_date: Date
+	starting_date: string
 	job_title: string
 	avatar: UserAvatarInterface | null
 	team: UserTeamInterface

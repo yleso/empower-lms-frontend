@@ -1,4 +1,4 @@
-@import '../../../styles/colors';
+@import '@/styles/colors';
 
 .Content {
 	display: flex;
@@ -37,6 +37,11 @@
 		font-size: 0.8em;
 		margin-left: 4px;
 	}
+}
+
+.Error {
+	margin: auto;
+	color: $system-red-color;
 }
 
 //Darkmode

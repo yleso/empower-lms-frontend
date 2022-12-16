@@ -1,10 +1,11 @@
-import { ThemeContext } from '@/context/theme.context'
 import { FC, useContext } from 'react'
 import { CircularProgressbar } from 'react-circular-progressbar'
-import Text from '../../../styles/text.module.scss'
-import Vars from '../../../vars/vars.json'
-import AssignedCourseInterface from './assigned-course.interface'
+import { ThemeContext } from '@/context/theme.context'
+import Text from '@/styles/text.module.scss'
+import Vars from '@/vars/vars.json'
+import { AssignedCourseInterface } from './assigned-course.interface'
 import Styles from './assigned-course.module.scss'
+
 
 const AssignedCourseMini: FC<AssignedCourseInterface> = course => {
 	const { darkmode } = useContext(ThemeContext)
@@ -13,11 +14,13 @@ const AssignedCourseMini: FC<AssignedCourseInterface> = course => {
 
 	const rotation: number = 1 - course.progress / 100
 
+	const startedOn = String(course.startedOn).substring(0, 10)
+
 	return (
 		<div className={`${Styles.Course} ${darkmode && Styles.CourseDark}`}>
 			<div className={Styles.CourseInfo}>
 				<h6 className={Text.H6Bold}>{course.name}</h6>
-				<p className={Text.Caption1Regular}>Started on {course.startedOn}</p>
+				<p className={Text.Caption1Regular}>Started on&nbsp;{startedOn}</p>
 			</div>
 
 			<div className={Styles.CourseProgress}>

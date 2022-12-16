@@ -1,0 +1,33 @@
+@import '@/styles/colors';
+
+.Word {
+	color: $system-black-color;
+	max-width: 100%;
+	position: relative;
+
+	p {
+		max-width: 100%;
+		word-wrap: anywhere;
+	}
+
+	&.WordDark {
+		color: $system-white-color;
+	}
+
+	span {
+		color: $brand-main-color;
+		display: inline-block;
+	}
+}
+
+.DeleteButton {
+	position: absolute;
+	top: -12px;
+	right: -12px;
+
+	color: $system-red-color;
+
+	& > * {
+		rotate: 45deg;
+	}
+}

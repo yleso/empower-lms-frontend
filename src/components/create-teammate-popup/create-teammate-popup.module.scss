@@ -1,0 +1,60 @@
+@import '@/styles/colors';
+
+.Content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: center;
+  position: relative;
+}
+
+.PopupForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.PopupGrid {
+  display: grid;
+  gap: 16px;
+  width: 304px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.Team {
+  grid-area: TEAM;
+}
+
+.Field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-start;
+
+  span {
+    font-weight: 500;
+    color: $grey-primary-color;
+    font-size: 0.8em;
+    margin-left: 4px;
+  }
+}
+
+.Error {
+  margin: auto;
+  color: $system-red-color;
+}
+
+//Darkmode
+
+.ContentDark {
+  label {
+    color: $system-white-color;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .PopupGrid {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+}

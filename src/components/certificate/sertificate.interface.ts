@@ -1,4 +1,6 @@
-export default interface CertificateInterface {
+export interface CertificateInterface {
+	id: number
 	name: string
-	passedIn: string
+	startedOn: Date
+	finishedOn: Date
 }

@@ -1,4 +1,4 @@
-import React, { FC, useContext, useState } from 'react'
+import React, { FC, useContext } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import Button from '@/components/generic/buttons/primary-button/button'
@@ -6,7 +6,7 @@ import Field from '@/components/generic/field/field'
 import Popup from '@/components/popup/popup'
 import { ThemeContext } from '@/context/theme.context'
 import { CreateCourseDto } from '@/types/course/create-course.dto'
-import useAuth from '@/hooks/useAuth.hook'
+import { useAuth } from '@/hooks/useAuth.hook'
 import courseApi from '@/store/api/course.api'
 import employeeApi from '@/store/api/employee.api'
 import Text from '@/styles/text.module.scss'
@@ -31,10 +31,7 @@ const CoursePopup: FC<PopupInterface> = ({
 		mode: 'onChange'
 	})
 
-	const [isRetry, setIsRetry] = useState(false)
-
-	const [createCourse, { data: createdCourse, isLoading }] =
-		courseApi.useCreateCourseMutation()
+	const [createCourse] = courseApi.useCreateCourseMutation()
 
 	const onSubmit: SubmitHandler<CreateCourseDto> = async data => {
 		const courseData = {
@@ -43,12 +40,12 @@ const CoursePopup: FC<PopupInterface> = ({
 		}
 
 		setPopupShow(false)
-		await createCourse(courseData)
-	}
-
-	if (!isLoading && createdCourse !== undefined && !isRetry) {
-		setIsRetry(true)
-		navigate(`/my-learning/course/${createdCourse?.data.id}`)
+		await createCourse(courseData).then(response => {
+			//Get new course from response
+			//@ts-ignore
+			const newCourse = response.data.data
+			navigate(`/knowledge-base/course/${newCourse.id}`)
+		})
 	}
 
 	return (

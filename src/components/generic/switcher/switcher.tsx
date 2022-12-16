@@ -1,7 +1,8 @@
 import { FC } from 'react'
-import Text from '../../../styles/text.module.scss'
-import Styles from './switcher.module.scss'
+import Text from '@/styles/text.module.scss'
 import SwitcherInterface from './switcher.interface'
+import Styles from './switcher.module.scss'
+
 
 const Switcher: FC<SwitcherInterface> = ({ state, toggle }) => {
 	return (
@@ -10,7 +11,7 @@ const Switcher: FC<SwitcherInterface> = ({ state, toggle }) => {
 				<input
 					id={'checkbox'}
 					type='checkbox'
-					onChange={() => toggle(!state)}
+					onChange={() => toggle(state => !state)}
 					className={Styles.SwitcherInput}
 				/>
 				<div className={Styles.SwitcherChooser} />

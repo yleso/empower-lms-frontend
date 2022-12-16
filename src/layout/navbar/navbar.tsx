@@ -1,14 +1,16 @@
-import { ThemeContext } from '@/context/theme.context'
 import { FC, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Moon, Search, SunHigh } from 'tabler-icons-react'
-import LogOut from '../../assets/icons/log-out.svg'
-import Avatar from '../../components/avatar/avatar'
-import useActions from '../../hooks/useActions.hook'
-import useAuth from '../../hooks/useAuth.hook'
-import employeeApi from '../../store/api/employee.api'
-import Text from '../../styles/text.module.scss'
+import { Moon, SunHigh } from 'tabler-icons-react'
+import Avatar from '@/components/avatar/avatar'
+import NavbarSearch from '@/components/navbar-search/navbar-search'
+import { ThemeContext } from '@/context/theme.context'
+import LogOut from '@/assets/icons/log-out.svg'
+import { useActions } from '@/hooks/useActions.hook'
+import { useAuth } from '@/hooks/useAuth.hook'
+import employeeApi from '@/store/api/employee.api'
+import Text from '@/styles/text.module.scss'
 import Styles from './navbar.module.scss'
+
 
 const Navbar: FC = () => {
 	const { toggleSidebar, darkmode, toggleDarkmode } = useContext(ThemeContext)
@@ -37,12 +39,7 @@ const Navbar: FC = () => {
 					<span />
 					<span />
 				</button>
-				<form className={Styles.NavbarSearch}>
-					<input type='text' placeholder='Search something' />
-					<button type='submit'>
-						<Search size={16} />
-					</button>
-				</form>
+				<NavbarSearch />
 			</div>
 			<div className={Styles.RightSide}>
 				<div className={Styles.Icons}>
@@ -63,7 +60,9 @@ const Navbar: FC = () => {
 								height={'32px'}
 								avatarPath={
 									userData?.avatar
-										? `http://localhost:4200${userData.avatar.formats.thumbnail.url}`
+										? `${import.meta.env.VITE_API_URL}${
+												userData.avatar.formats.thumbnail.url
+										  }`
 										: 'https://via.placeholder.com/32'
 								}
 							/>

@@ -8,13 +8,13 @@ const questionApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get Test Questions
 		getTestQuestions: builder.query<{ data: QuestionInterface[] }, number>({
-			query: testId => `questions?filters[test]=${testId}&populate=answers`,
-			providesTags: () => [{ type: 'Question' }]
+			query: testId => `questions?filters[test]=${testId}&populate=answers`
+			// providesTags: () => [{ type: 'Question' }]
 		}),
 		//Get Test Questions
 		getQuestionWithAnswers: builder.query<{ data: QuestionInterface }, number>({
-			query: questionId => `questions/${questionId}?populate=answers`,
-			providesTags: () => [{ type: 'Question' }]
+			query: questionId => `questions/${questionId}?populate=answers`
+			// providesTags: () => [{ type: 'Question' }]
 		}),
 		//Create Question
 		createQuestion: builder.mutation<
@@ -29,8 +29,7 @@ const questionApi = api.injectEndpoints({
 				body: {
 					data: dto
 				}
-			}),
-			invalidatesTags: ['Question']
+			})
 		}),
 		//Edit Question
 		editQuestion: builder.mutation<
@@ -58,8 +57,8 @@ const questionApi = api.injectEndpoints({
 			query: questionId => ({
 				url: `questions/${questionId}`,
 				method: 'DELETE'
-			}),
-			invalidatesTags: ['Question']
+			})
+			// invalidatesTags: ['Question']
 		})
 	})
 })

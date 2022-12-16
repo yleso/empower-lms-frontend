@@ -6,10 +6,10 @@ interface IconDataInterface {
 	}
 }
 
-export default interface CourseInterface {
+export interface CourseInterface {
 	icons?: IconDataInterface[] | null
 	id: number
 	name: string
 	description: string
-	disabled?: boolean
+	disabled: boolean
 }

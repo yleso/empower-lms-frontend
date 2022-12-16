@@ -1,4 +1,4 @@
-export default interface UpdateModuleDto {
+export interface UpdateModuleDto {
 	id: number
 	name: string
 }

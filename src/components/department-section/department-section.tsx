@@ -1,11 +1,12 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, useContext } from 'react'
-import { Link } from 'react-router-dom'
-import useAuth from '@/hooks/useAuth.hook'
-import employeeApi from '@/store/api/employee.api'
-import Text from '@/styles/text.module.scss'
-import DepartmentSectionInterface from './department-section.interface'
-import Styles from './department-section.module.scss'
+import { FC, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { ThemeContext } from '@/context/theme.context';
+import { useAuth } from '@/hooks/useAuth.hook'
+import employeeApi from '@/store/api/employee.api';
+import Text from '@/styles/text.module.scss';
+import DepartmentSectionInterface from './department-section.interface';
+import Styles from './department-section.module.scss';
+
 
 const DepartmentSection: FC<DepartmentSectionInterface> = department => {
 	const { darkmode } = useContext(ThemeContext)

@@ -2,7 +2,7 @@ import { axiosClassic } from '@/store/api/axios'
 import { AuthDataInterface } from './auth.interface'
 
 class AuthService {
-	static async login(identifier: string, password: string) {
+	public static async login(identifier: string, password: string) {
 		const response = await axiosClassic.post<AuthDataInterface>(
 			'/auth/local/',
 			{
@@ -14,7 +14,7 @@ class AuthService {
 		return response.data
 	}
 
-	static async register(
+	public static async register(
 		username: string,
 		name: string,
 		surname: string,
@@ -43,7 +43,7 @@ class AuthService {
 
 	static async logout() {}
 
-	static async changePassword(
+	public static async changePassword(
 		currentPassword: string,
 		password: string,
 		passwordConfirmation: string

@@ -90,4 +90,41 @@
 		font-family: 'Roboto';
 		font-style: normal;
 	}
+
+	//Code
+	pre {
+		border-radius: 3px;
+		white-space: pre-wrap;
+		padding: 5px 10px;
+		overflow: visible;
+		color: #f8f8f2;
+		background-color: #23241f;
+	}
+
+	//Blockquote
+	blockquote {
+		margin: 5px 0;
+		padding-left: 16px;
+		line-height: 1.2;
+		font-size: inherit;
+		border-left: 4px solid #ccc;
+	}
+
+	//text align
+	.ql-align-center {
+		text-align: center;
+	}
+
+	.ql-align-right {
+		text-align: right;
+	}
+
+	.ql-align-justify {
+		text-align: justify;
+	}
+
+	//image
+	img {
+		max-width: 100%;
+	}
 }

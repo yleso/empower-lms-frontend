@@ -1,4 +1,4 @@
-@import '../../styles/colors';
+@import '@/styles/colors';
 
 .Navbar {
 	height: 56px;
@@ -30,29 +30,6 @@
 	width: 24px;
 	height: 2px;
 	background-color: $brand-main-color;
-}
-
-.NavbarSearch {
-	border-radius: 16px;
-	width: 256px;
-	height: 32px;
-	display: flex;
-	padding: 0 16px;
-	background-color: $background-main-light-color;
-	color: $grey-primary-color;
-
-	input {
-		font-weight: 400;
-		font-size: 11px;
-		flex-grow: 1;
-		background-color: transparent;
-		border: none;
-		color: $system-black-color;
-	}
-
-	button {
-		color: currentColor;
-	}
 }
 
 .NavbarSearch input::placeholder {
@@ -155,6 +132,10 @@
 	.NavbarBurger {
 		display: none;
 	}
+
+	.NavbarSearch {
+		width: 192px;
+	}
 }
 
 @media screen and (max-width: 480px) {
@@ -175,17 +156,6 @@
 .NavbarDark {
 	background-color: $background-secondary-dark-color;
 	border-color: $grey-secondary-dark-color;
-
-	.NavbarSearch {
-		background-color: $background-main-dark-color;
-
-		input {
-			color: $system-white-color;
-		}
-	}
-}
-
-.NavbarSearchDark {
 }
 
 .ProfileDialogDark {

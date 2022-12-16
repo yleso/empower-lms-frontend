@@ -1,0 +1,103 @@
+@import '@/styles/colors';
+
+.Select {
+  display: flex;
+  gap: 4px;
+  position: relative;
+  width: 100%;
+  padding: 0 16px;
+  border-radius: 4px;
+
+  select {
+    font-family: inherit;
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    color: currentColor;
+    background: none;
+
+    &:disabled {
+      color: $grey-primary-color;
+    }
+  }
+
+  input {
+    height: 32px;
+  }
+
+  div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: $grey-primary-color;
+  }
+
+  //Select
+
+  select {
+    height: 32px;
+    font-family: inherit;
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    color: currentColor;
+    background: none;
+
+    &:disabled {
+      color: $grey-primary-color;
+    }
+
+    option {
+      color: $system-black-color
+    }
+  }
+}
+
+.Textarea {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  min-height: 96px;
+  resize: none;
+
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.SelectWhite {
+  color: $system-black-color;
+  background-color: $system-white-color;
+}
+
+.SelectGrey {
+  background-color: $background-main-light-color;
+  color: $system-black-color;
+}
+
+.SelectDarkGrey {
+  color: $system-white-color;
+  background-color: $background-secondary-dark-color;
+}
+
+.SelectBlack {
+  color: $system-white-color;
+  background-color: $background-main-dark-color;
+}
+
+.Select.invalid {
+  color: $system-red-color;
+  border: 1px solid $system-red-color;
+}
+
+.Select.valid {
+  color: $system-green-color;
+  border: 1px solid $system-green-color;
+}

@@ -2,7 +2,7 @@ import { FC } from 'react'
 import { Trash } from 'tabler-icons-react'
 import Vars from '@/vars/vars.json'
 
-const SmallDeleteButton: FC<{ deleteFunction: () => Promise<void> }> = ({
+const SmallDeleteButton: FC<{ deleteFunction: () => Promise<void> | void }> = ({
 	deleteFunction
 }) => {
 	return (

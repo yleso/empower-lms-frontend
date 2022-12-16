@@ -21,8 +21,9 @@ const Popup: FC<PropsWithChildren<PopupInterface>> = ({
 	}, [])
 
 	const handleClose = (event: KeyboardEvent) => {
-		if (event.key !== 'Escape') return
-		setIsOpened(false)
+		if (event.key === 'Escape') {
+			setIsOpened(false)
+		}
 	}
 
 	return (

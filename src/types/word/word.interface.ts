@@ -1,4 +1,4 @@
-export default interface WordInterface {
+export interface WordInterface {
 	id: number
 	attributes: {
 		name: string

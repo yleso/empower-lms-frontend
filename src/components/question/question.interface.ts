@@ -13,8 +13,18 @@ export interface QuestionInterface {
 	answers: AnswerInterface[]
 }
 
+interface UserProgress {
+	id: number
+	questions: number[]
+	tests: number[]
+}
+
 export interface QuestionEditInterface {
-	changeOrderFunction: (questionId: number, increase: boolean) => Promise<void>
+	testId: number
+	userProgress: UserProgress
+	questionTestId: number
 	question: QuestionInterface
 	editing: boolean
+	changeOrderFunction: (questionId: number, increase: boolean) => Promise<void>
+	deleteFunction: (questionId: number) => Promise<void>
 }

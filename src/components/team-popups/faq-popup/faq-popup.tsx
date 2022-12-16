@@ -15,20 +15,17 @@ import Styles from './faq-popup.module.scss'
 const FaqPopup: FC<PopupInterface> = ({
 	popupShow,
 	setPopupShow,
-	popupRef
+	popupRef,
+	setValue
 }) => {
 	const { darkmode } = useContext(ThemeContext)
 	const { team_id: teamId } = useParams()
 
-	const {
-		register,
-		formState: { errors },
-		handleSubmit
-	} = useForm<CreateFaqDto>({
+	const { register, handleSubmit } = useForm<CreateFaqDto>({
 		mode: 'onChange'
 	})
 
-	const [addFaq, { isLoading }] = faqApi.useCreateFaqMutation()
+	const [addFaq] = faqApi.useCreateFaqMutation()
 
 	const onSubmit: SubmitHandler<CreateFaqDto> = async data => {
 		const questionData = {
@@ -36,9 +33,17 @@ const FaqPopup: FC<PopupInterface> = ({
 			team: Number(teamId)
 		}
 
+		//Close popup
 		setPopupShow(false)
-		await addFaq(questionData)
-		!isLoading && window.location.reload()
+		//Create faq
+		await addFaq(questionData).then(response => {
+			//Get new faq from response
+			//@ts-ignore
+			const newFaq = response.data.data
+			//Add new faq to current list
+			//@ts-ignore
+			setValue(currentFaqs => [...currentFaqs, newFaq])
+		})
 	}
 
 	return (

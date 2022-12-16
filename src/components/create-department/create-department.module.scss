@@ -1,0 +1,26 @@
+@import '@/styles/colors';
+
+.DepartmentSection {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 128px;
+	border-radius: 16px;
+	background-color: $system-white-color;
+	color: $brand-main-color;
+	width: 100%;
+	padding: 16px;
+	text-align: center;
+}
+
+.DepartmentSectionDark {
+	background-color: $background-secondary-dark-color;
+}
+
+@media screen and (max-width: 480px) {
+	.DepartmentSection {
+		height: auto;
+		border-radius: 8px;
+		padding: 24px 16px;
+	}
+}

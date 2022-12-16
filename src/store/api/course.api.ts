@@ -1,5 +1,5 @@
 import Course from '@/components/course/course'
-import CourseInterface from '@/types/course/course.interface'
+import { CourseInterface } from '@/types/course/course.interface'
 import { CreateCourseDto } from '@/types/course/create-course.dto'
 import { UpdateCourseDto } from '@/types/course/update-course.dto'
 import api from './api'

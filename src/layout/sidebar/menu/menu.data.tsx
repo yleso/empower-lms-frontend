@@ -1,7 +1,7 @@
-import { MenuitemInterface } from './menuitem.interface'
-import { Book2, Database, Subtask } from 'tabler-icons-react'
+import { Book2, Database, Settings, Subtask } from 'tabler-icons-react'
+import { MenuItemInterface } from './menu-item.interface'
 
-export const MenuData: MenuitemInterface[] = [
+export const MenuData: MenuItemInterface[] = [
 	{
 		name: 'My learning',
 		path: '/my-learning',
@@ -14,10 +14,10 @@ export const MenuData: MenuitemInterface[] = [
 	}
 ]
 
-export const AdminMenuData: MenuitemInterface[] = [
+export const AdminMenuData: MenuItemInterface[] = [
 	{
 		name: 'Admin panel',
 		path: '/admin-panel',
-		icon: <Subtask size={18} />
+		icon: <Settings size={18} />
 	}
 ]

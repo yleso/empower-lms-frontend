@@ -6,7 +6,7 @@ interface IconsDataInterface {
 	}
 }
 
-export default interface CourseInterface {
+export interface CourseInterface {
 	id: number
 	attributes: {
 		name: string

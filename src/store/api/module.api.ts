@@ -1,6 +1,6 @@
-import CreateModuleDto from '@/types/module/create-module.dto'
-import ModuleInterface from '@/types/module/module.interface'
-import UpdateModuleDto from '@/types/module/update-module.dto'
+import { CreateModuleDto } from '@/types/module/create-module.dto'
+import { ModuleInterface } from '@/types/module/module.interface'
+import { UpdateModuleDto } from '@/types/module/update-module.dto'
 import api from '@/store/api/api'
 
 

@@ -17,7 +17,8 @@ const api = createApi({
 		'Test',
 		'Question',
 		'Answer',
-		'Upload'
+		'Upload',
+		'User Progress'
 	],
 	baseQuery: fetchBaseQuery({
 		baseUrl: API_URL,

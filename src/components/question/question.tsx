@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useRef, useState } from 'react'
+import { FC, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, Check } from 'tabler-icons-react'
 import Field from '@/generic/field/field'
 import SmallDeleteButton from '@/components/generic/buttons/delete-buttons/small-delete-button/small-delete-button'
@@ -7,15 +7,21 @@ import Divider from '@/components/generic/divider/divider'
 import { ThemeContext } from '@/context/theme.context'
 import answerApi from '@/store/api/answer.api'
 import questionApi from '@/store/api/question.api'
+import userProgressApi from '@/store/api/user-progress.api'
 import Text from '@/styles/text.module.scss'
 import { AnswerInterface, QuestionEditInterface } from './question.interface'
 import Styles from './question.module.scss'
+import { useLocation } from 'react-router-dom'
 
 
 const Question: FC<QuestionEditInterface> = ({
+	testId,
+	userProgress,
+	questionTestId,
 	question,
 	editing,
-	changeOrderFunction
+	changeOrderFunction,
+	deleteFunction
 }) => {
 	//Hooks
 	//Ui hooks
@@ -45,49 +51,32 @@ const Question: FC<QuestionEditInterface> = ({
 
 				return
 			}
-
-			//Check if it is first render and set it if not
-			if (!isMounted) return setIsMounted(true)
+			
 			//Edit everything
 			await editEverything()
 		}
+		
+		//Check if it is first render and set it if not
+		if (!isMounted) return setIsMounted(true)
 
 		//Bootstrap async functions
-		toggleEdit()
+		toggleEdit().then(() => {})
 	}, [editing])
 
 	//Text answer input setting on component loaded
 	useEffect(() => {
-		const textAnswerFunction = async () => {
+		const textAnswerFunction = () => {
 			//Check if question type is not input type
 			if (question.type !== 'input') return
 
 			//Check does the questions list contain answer for this question
-			if (answers[0]) {
+			if (answers.length !== 0) {
 				setTextAnswer(answers[0].name)
 				setTextAnswerFromProps(answers[0].name)
-			} else {
-				//Crete new answer if it does not exist
-				//Basic object for one new answer, which is true,
-				//because it is only one true answer in text type question
-				const newAnswer = {
-					question: question.id,
-					name: '',
-					right: true
-				}
-
-				//Create answer
-				await createAnswerApi(newAnswer).then(response => {
-					//Get new answer from response
-					//@ts-ignore
-					const newAnswer = response.data.data
-					//Set text answer in hook
-					setTextAnswer(newAnswer.attributes.name)
-				})
 			}
 		}
 
-		textAnswerFunction().then(() => {})
+		textAnswerFunction()
 	}, [])
 
 	//Refs
@@ -105,8 +94,6 @@ const Question: FC<QuestionEditInterface> = ({
 	//Question
 	//Edit question api
 	const [editQuestionApi] = questionApi.useEditQuestionMutation()
-	//Delete question api
-	const [deleteQuestionApi] = questionApi.useDeleteQuestionMutation()
 	//Answers
 	//Create answer api
 	const [createAnswerApi] = answerApi.useCreateAnswerMutation()
@@ -148,14 +135,14 @@ const Question: FC<QuestionEditInterface> = ({
 			})
 		}
 	}
-	//Delete question //TODO Fix bug with neighboring questions order
-	const deleteQuestion = async () => {
+	//Delete question
+	const deleteQuestion = useCallback(async () => {
 		for (const answer of answers) {
 			await deleteAnswer(answer.id)
 		}
 
-		await deleteQuestionApi(question.id)
-	}
+		await deleteFunction(question.id)
+	}, [answers])
 	//Answers
 	//Edit answers
 	const editAnswers = async () => {
@@ -303,7 +290,176 @@ const Question: FC<QuestionEditInterface> = ({
 	}
 
 	//LEARNING PART
-	//SOON //TODO Create learning functions
+	//Hooks
+	//Is questions answered
+	const [answered, setAnswered] = useState(false)
+	//Pathname hook
+	const { pathname } = useLocation()
+	const isLearningPage = pathname.startsWith('/my-learning')
+	//Set questions answered or not
+	useEffect(() => {
+		setAnswered(userProgress.questions.includes(question.id))
+	}, [userProgress])
+	//Is answer incorrect
+	const [answeredIncorrect, setAnsweredIncorrect] = useState(false)
+	//Set answer not incorrect if it was answered right
+	useEffect(() => {
+		if (answered) {
+			setAnsweredIncorrect(false)
+		}
+	}, [answered])
+	//Api functions
+	const [editUserProgressApi] = userProgressApi.useEditUserProgressMutation()
+	//Get test questions
+	const { data: testQuestionsData } =
+		questionApi.useGetTestQuestionsQuery(testId)
+	//For text answer question
+	const [textUserAnswer, setTextUserAnswer] = useState<string>('')
+	//Answer the question function
+	const answerTheQuestion = async () => {
+		//If question type is text
+		if (question.type === 'input') {
+			//Check does the answer is right
+			if (textUserAnswer === textAnswer) {
+				//Edit user progress
+				await editUserProgressApi({
+					id: userProgress.id,
+					questions: [...userProgress.questions, question.id]
+				})
+				//Mark test as passed
+				//Get array with test questions ids
+				const testQuestionsIds = (): number[] => {
+					//Create empty array
+					let testQuestionsIds: number[] = []
+					//Check is questions data empty
+					if (testQuestionsData) {
+						//Algorithm
+						for (const question of testQuestionsData?.data) {
+							testQuestionsIds.push(question.id)
+						}
+					}
+					//Return new array with ids
+					return testQuestionsIds
+				}
+				//Check is question test passed
+				const isTestPassed = (): boolean => {
+					let isTestPassed = true
+					if (testQuestionsIds().length !== userProgress.questions.length + 1) {
+						isTestPassed = false
+					}
+					for (const passedQuestion of userProgress.questions) {
+						if (!testQuestionsIds().includes(passedQuestion) && isTestPassed) {
+							isTestPassed = false
+						}
+					}
+					//Return is test passed boolean value
+					return isTestPassed
+				}
+				if (isTestPassed()) {
+					await editUserProgressApi({
+						id: Number(userProgress.id),
+						tests: [...userProgress.tests, questionTestId]
+					})
+				}
+				//Set question answered
+				setAnswered(true)
+			} else {
+				setAnsweredIncorrect(true)
+			}
+
+			return
+		}
+
+		//For other question types
+		const getRightAnswersIds = () => {
+			let rightAnswersIds: number[] = []
+
+			for (const answer of answers) {
+				if (answer.right) rightAnswersIds.push(answer.id)
+			}
+
+			return rightAnswersIds
+		}
+		//Right questions ids
+		const rightQuestionsIds = getRightAnswersIds()
+
+		//Get answers which student marked as right
+		const getMarkedAsRightAnswersIds = () => {
+			//Empty array
+			let answersIds: number[] = []
+			//Algorithm
+			for (const answer of answersInputsRef.current) {
+				if (answer) {
+					if (answer.checked) {
+						answersIds.push(Number(answer.id))
+					}
+				}
+			}
+			//Return new array
+			return answersIds
+		}
+		//Array with answers which user marked as right
+		const markedAsRightAnswersIds = getMarkedAsRightAnswersIds()
+
+		//Check are the answers right
+		//Algorithm to get right answers
+		let right = true
+		if (rightQuestionsIds.length !== markedAsRightAnswersIds.length)
+			right = false
+		for (const markedAnswerId of markedAsRightAnswersIds) {
+			if (!rightQuestionsIds.includes(markedAnswerId) && right) {
+				right = false
+			}
+		}
+
+		if (right) {
+			//Mark test as passed
+			//Get array with test questions ids
+			const testQuestionsIds = (): number[] => {
+				//Create empty array
+				let testQuestionsIds: number[] = []
+				//Check is questions data empty
+				if (testQuestionsData) {
+					//Algorithm
+					for (const question of testQuestionsData?.data) {
+						testQuestionsIds.push(question.id)
+					}
+				}
+				//Return new array with ids
+				return testQuestionsIds
+			}
+			//Check is question test passed
+			const isTestPassed = (): boolean => {
+				let isTestPassed = true
+				if (testQuestionsIds().length !== userProgress.questions.length + 1) {
+					isTestPassed = false
+				}
+				for (const passedQuestion of userProgress.questions) {
+					if (!testQuestionsIds().includes(passedQuestion) && isTestPassed) {
+						isTestPassed = false
+					}
+				}
+				//Return is test passed boolean value
+				return isTestPassed
+			}
+			if (isTestPassed()) {
+				await editUserProgressApi({
+					id: Number(userProgress.id),
+					tests: [...userProgress.tests, questionTestId]
+				})
+			}
+
+			// Edit user progress
+			await editUserProgressApi({
+				id: userProgress.id,
+				questions: [...userProgress.questions, question.id]
+			})
+			// Set question answered
+			setAnswered(true)
+		} else {
+			setAnsweredIncorrect(true)
+		}
+	}
 	//END OF LEARNING PART
 
 	return (
@@ -390,6 +546,7 @@ const Question: FC<QuestionEditInterface> = ({
 							>
 								<label className={Styles.QuestionAnswer}>
 									<input
+										id={`${answer.id}`}
 										type={'checkbox'}
 										value={answer.name}
 										name={question.name}
@@ -438,6 +595,7 @@ const Question: FC<QuestionEditInterface> = ({
 							>
 								<label className={Styles.QuestionAnswer}>
 									<input
+										id={`${answer.id}`}
 										type={'radio'}
 										value={answer.name}
 										name={question.name}
@@ -483,8 +641,12 @@ const Question: FC<QuestionEditInterface> = ({
 								theme={!darkmode ? 'grey' : 'black'}
 								name={question.name}
 								reference={textAnswerInputRef}
-								onChange={event => setTextAnswer(event.target.value)}
-								value={editing ? textAnswer : ''}
+								onChange={
+									editing
+										? event => setTextAnswer(event.target.value)
+										: event => setTextUserAnswer(event.target.value)
+								}
+								value={editing ? textAnswer : textUserAnswer}
 							/>
 						</div>
 					)}
@@ -504,14 +666,18 @@ const Question: FC<QuestionEditInterface> = ({
 				</div>
 				<div className={Styles.QuestionButton}>
 					<Button
-						clickFunction={() => {
-							console.log('Answered!')
-						}}
+						clickFunction={answerTheQuestion}
 						text={'Answer'}
-						disabled={editing}
+						disabled={!isLearningPage || editing || answered || userProgress === undefined}
 						small
 						fill
 					/>
+					{answeredIncorrect && <div className={Styles.IncorrectAnswer} />}
+					{answered && (
+						<div className={Styles.CorrectAnswer}>
+							<Check size={12} strokeWidth={4} />
+						</div>
+					)}
 				</div>
 			</form>
 		</div>

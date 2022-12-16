@@ -15,7 +15,8 @@ import Styles from '../faq-popup/faq-popup.module.scss'
 const WordPopup: FC<PopupInterface> = ({
 	popupShow,
 	setPopupShow,
-	popupRef
+	popupRef,
+	setValue
 }) => {
 	const { darkmode } = useContext(ThemeContext)
 	const { team_id: teamId } = useParams()
@@ -24,7 +25,7 @@ const WordPopup: FC<PopupInterface> = ({
 		mode: 'onChange'
 	})
 
-	const [addWord, { isLoading }] = wordApi.useCreateWordMutation()
+	const [addWord] = wordApi.useCreateWordMutation()
 
 	const onSubmit: SubmitHandler<CreateWordDto> = async data => {
 		const wordData = {
@@ -33,8 +34,14 @@ const WordPopup: FC<PopupInterface> = ({
 		}
 
 		setPopupShow(false)
-		await addWord(wordData)
-		!isLoading && window.location.reload()
+		await addWord(wordData).then(response => {
+			//Get new word from response
+			//@ts-ignore
+			const newWord = response.data.data
+			//Add new word to current list
+			//@ts-ignore
+			setValue(currentWords => [...currentWords, newWord])
+		})
 	}
 
 	return (

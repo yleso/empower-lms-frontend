@@ -1,7 +1,7 @@
-import { FC, PropsWithChildren } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
-import Loader from '@/components/loader/loader'
-import useAuth from '@/hooks/useAuth.hook'
+import { FC, PropsWithChildren } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import Loader from '@/components/loader/loader';
+import { useAuth } from '@/hooks/useAuth.hook'
 
 
 const AuthProvider: FC<PropsWithChildren> = ({ children }) => {

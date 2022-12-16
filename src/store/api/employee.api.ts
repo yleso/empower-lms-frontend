@@ -1,4 +1,4 @@
-import { TeamInterface } from '@/types/team.interface'
+import { TeamInterface } from '@/types/team/team.interface'
 import { CreateUserDto } from '@/types/user/create-user.dto'
 import { UserInterface } from '@/types/user/user.interface'
 import api from './api'
@@ -6,6 +6,11 @@ import api from './api'
 
 const employeeApi = api.injectEndpoints({
 	endpoints: builder => ({
+		//Get all employees
+		getAllEmployees: builder.query<UserInterface[], null>({
+			query: () => `users?populate=team,avatar,role&sort=id`,
+			providesTags: () => [{ type: 'User' }]
+		}),
 		//Get Employee
 		getEmployee: builder.query<UserInterface, number>({
 			query: employeeId => `users/${employeeId}?populate=team,avatar,role`,
@@ -48,6 +53,48 @@ const employeeApi = api.injectEndpoints({
 				method: 'PUT',
 				body: {
 					avatar: data.avatarId
+				}
+			}),
+			invalidatesTags: () => [{ type: 'User' }]
+		}),
+		//Delete user
+		deleteEmployee: builder.mutation<UserInterface, number>({
+			query: userId => ({
+				url: `users/${userId}`,
+				method: 'DELETE'
+			}),
+			invalidatesTags: () => [{ type: 'User' }]
+		}),
+		//Change Employee Avatar
+		changeEmployeeTeam: builder.mutation<
+			UserInterface,
+			{
+				userId: number
+				teamId: number
+			}
+		>({
+			query: ({ userId, teamId }) => ({
+				url: `users/${userId}`,
+				method: 'PUT',
+				body: {
+					team: teamId
+				}
+			}),
+			invalidatesTags: () => [{ type: 'User' }]
+		}),
+		//Change Employee Avatar
+		changeEmployeeRole: builder.mutation<
+			UserInterface,
+			{
+				userId: number
+				roleId: number
+			}
+		>({
+			query: ({ userId, roleId }) => ({
+				url: `users/${userId}`,
+				method: 'PUT',
+				body: {
+					role: roleId
 				}
 			}),
 			invalidatesTags: () => [{ type: 'User' }]

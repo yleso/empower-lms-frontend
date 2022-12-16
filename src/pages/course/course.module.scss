@@ -48,6 +48,11 @@
 .CourseIcons {
 	display: flex;
 	gap: 8px;
+
+	img {
+		max-width: 24px;
+		max-height: 24px;
+	}
 }
 
 .IconsAdd {
@@ -61,6 +66,8 @@
 	border-radius: 4px;
 	background-color: $brand-main-color;
 	transition: 0.2s;
+
+	cursor: pointer;
 
 	&:hover {
 		background-color: $brand-hover-color;
@@ -83,6 +90,8 @@
 	background-color: $system-white-color;
 
 	cursor: pointer;
+
+	position: relative;
 
 	.ModuleContent {
 		display: none;
@@ -121,6 +130,19 @@
 	align-items: center;
 }
 
+.ModulePassed {
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	width: 16px;
+	height: 100%;
+
+	border-radius: 8px 0 0 8px;
+
+	background-color: $system-green-color;
+}
+
 .ModuleHeader {
 	display: flex;
 	justify-content: space-between;
@@ -154,6 +176,12 @@
 		font-size: 1.4em;
 		font-weight: normal;
 	}
+}
+
+.ModuleContentName {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .ModuleContentNameEdit {

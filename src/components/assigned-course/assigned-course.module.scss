@@ -30,7 +30,8 @@
 	gap: 8px;
 
 	& > * {
-		width: 24px;
+		max-width: 24px;
+		max-height: 24px;
 	}
 }
 

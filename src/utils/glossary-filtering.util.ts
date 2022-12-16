@@ -1,4 +1,4 @@
-import WordInterface from '../types/word/word.interface'
+import { WordInterface } from '@/types/word/word.interface'
 
 export const glossaryFilters = [
 	'A-B',

@@ -41,6 +41,11 @@
 	background-color: $background-main-dark-color;
 }
 
+.NextButton {
+	display: flex;
+	justify-content: flex-end;
+}
+
 //Darkmode
 
 .LessonDark {

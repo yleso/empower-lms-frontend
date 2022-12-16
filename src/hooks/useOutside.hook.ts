@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const useOutside = (initialVisibility: boolean) => {
+export const useOutside = (initialVisibility: boolean) => {
 	const [isShow, setIsShow] = useState(initialVisibility)
 	const ref = useRef<HTMLElement>(null)
 
@@ -21,5 +21,3 @@ const useOutside = (initialVisibility: boolean) => {
 
 	return { isShow, setIsShow, ref }
 }
-
-export default useOutside

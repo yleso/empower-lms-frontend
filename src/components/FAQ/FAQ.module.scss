@@ -1,8 +1,9 @@
-@import '../../styles/colors';
+@import '@/styles/colors';
 
 .FAQ {
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start;
 	gap: 8px;
 
 	padding: 16px 32px;
@@ -10,15 +11,19 @@
 	background-color: $system-white-color;
 
 	cursor: pointer;
+}
 
-	.FAQAnswer {
-		display: none;
-		transition: 0.4s ease-out;
-	}
+.FAQAnswer {
+	display: none;
+	transition: 0.4s ease-out;
+}
 
-	svg {
-		transition: 0.4s ease-out;
-	}
+.CursorText {
+	cursor: text;
+}
+
+.FAQIcon > * {
+	transition: 0.4s ease-out;
 }
 
 .FAQOpened {
@@ -26,7 +31,7 @@
 		display: block;
 	}
 
-	svg {
+	.FAQIcon > * {
 		rotate: 135deg;
 	}
 }
@@ -36,6 +41,14 @@
 	justify-content: space-between;
 	align-items: center;
 	gap: 8px;
+
+	width: 100%;
+}
+
+.FAQButtons {
+	display: flex;
+	align-items: center;
+	gap: 16px;
 }
 
 @media screen and (max-width: 360px) {

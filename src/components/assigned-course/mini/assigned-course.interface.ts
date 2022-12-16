@@ -1,5 +1,6 @@
-export default interface AssignedCourseInterface {
+export interface AssignedCourseInterface {
+	id: number
 	name: string
-	startedOn: string
 	progress: number
+	startedOn: Date
 }

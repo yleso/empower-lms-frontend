@@ -1,5 +1,5 @@
 import emailjs from '@emailjs/browser'
-import React, { FC, useContext } from 'react'
+import React, { FC, useContext, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import Button from '@/components/generic/buttons/primary-button/button'
@@ -19,17 +19,27 @@ const TeammatePopup: FC<TeammatePopupInterface> = ({
 	popupShow,
 	setPopupShow,
 	popupRef,
-	teamName
+	teamName,
+	setValue
 }) => {
 	const { darkmode } = useContext(ThemeContext)
 
 	const { team_id } = useParams()
 	const teamId = Number(team_id) || 0
 
+	const [error, setError] = useState<string>()
+
+	useEffect(() => {
+		setError(undefined)
+		return () => {
+			setError(undefined)
+		}
+	}, [])
+
 	const [createUserApi] = employeeApi.useCreateEmployeeMutation()
 
-	const sendEmail = (name: string, email: string, password: string) => {
-		emailjs.send(
+	const sendEmail = async (name: string, email: string, password: string) => {
+		await emailjs.send(
 			import.meta.env.VITE_EMAIL_SERVICE_ID,
 			import.meta.env.VITE_EMAIL_TEMPLATE_ID,
 			{
@@ -41,11 +51,7 @@ const TeammatePopup: FC<TeammatePopupInterface> = ({
 		)
 	}
 
-	const {
-		register,
-		formState: { errors },
-		handleSubmit
-	} = useForm<TeammatePopupFormInterface>({
+	const { register, handleSubmit } = useForm<TeammatePopupFormInterface>({
 		mode: 'onChange'
 	})
 
@@ -57,10 +63,32 @@ const TeammatePopup: FC<TeammatePopupInterface> = ({
 			password: GeneratePassword(12)
 		}
 
-		setPopupShow(false)
-		await createUserApi(userData).then(() => {
-			sendEmail(userData.name, userData.email, userData.password)
-		})
+		await createUserApi(userData)
+			.then(response => {
+				//Get new employee from response
+				//@ts-ignore
+				const newEmployee = response.data
+				//Get error from response
+				//@ts-ignore
+				const error = response.error
+				//If email is already registered
+				if (error) {
+					if (error.data.error.message === 'Email already taken') {
+						return setError('Employee with this email is already exist')
+					}
+
+					return setError('Employee with this phone is already exist')
+				}
+				//Add new employee to current list
+				//@ts-ignore
+				setValue(currentEmployees => [...currentEmployees, newEmployee])
+				//Close popup
+				setPopupShow(false)
+			})
+			//Send email with login and password to new employee
+			.then(() => {
+				sendEmail(userData.name, userData.email, userData.password)
+			})
 	}
 
 	return (
@@ -106,6 +134,7 @@ const TeammatePopup: FC<TeammatePopupInterface> = ({
 								/>
 							</div>
 						</div>
+						{error && <div className={Styles.Error}>{error}</div>}
 						<Button text={'Add a team member'} fill small submit />
 					</form>
 				</div>

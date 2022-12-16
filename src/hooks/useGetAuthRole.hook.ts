@@ -1,5 +1,5 @@
 import employeeApi from '../store/api/employee.api'
-import useAuth from './useAuth.hook'
+import { useAuth } from './useAuth.hook'
 
 export const useGetAuthRole = () => {
 	const { user, isLoading: authLoading } = useAuth()

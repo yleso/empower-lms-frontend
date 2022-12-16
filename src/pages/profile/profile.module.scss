@@ -3,7 +3,7 @@
 .DragAndDrop {
 	border-radius: 16px;
 	width: 256px;
-	height: 128px;
+	height: 336px;
 	padding: 16px;
 
 	display: flex;
@@ -11,8 +11,9 @@
 	justify-content: center;
 	text-align: center;
 
-	background-color: $grey-primary-color;
+	background-color: rgba($grey-primary-color, 0.5);
 	color: $system-white-color;
+	border: 5px $grey-primary-color dashed;
 
 	cursor: pointer;
 
@@ -53,6 +54,20 @@
 
 	button {
 		color: $brand-main-color;
+	}
+}
+
+.Underline {
+	position: relative;
+
+	&::after {
+		content: '';
+		position: absolute;
+		width: 100%;
+		background-color: currentColor;
+		height: 2px;
+		bottom: -1px;
+		left: 0;
 	}
 }
 

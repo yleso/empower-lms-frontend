@@ -1,3 +1,3 @@
-export default interface CreateModuleDto {
+export interface CreateModuleDto {
 	course: number
 }

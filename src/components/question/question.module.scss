@@ -149,6 +149,53 @@
 	max-width: 256px;
 }
 
+.QuestionButton {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.CorrectAnswer,
+.IncorrectAnswer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 16px;
+	height: 16px;
+
+	color: $system-white-color;
+
+	border-radius: 50%;
+}
+
+.CorrectAnswer {
+	background-color: $system-green-color;
+}
+
+.IncorrectAnswer {
+	background-color: $system-red-color;
+	position: relative;
+
+	&:after,
+	&:before {
+		content: '';
+		position: absolute;
+		inset: auto;
+		width: 10px;
+		height: 1.4px;
+		background-color: $system-white-color;
+	}
+
+	&:after {
+		rotate: 45deg;
+	}
+
+	&:before {
+		rotate: -45deg;
+	}
+}
+
 @media screen and (max-width: 360px) {
 	.Test {
 		padding: 24px;

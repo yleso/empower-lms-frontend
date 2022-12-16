@@ -1,29 +1,41 @@
-import { FC, MouseEvent, useContext, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { ChevronDown, Plus, Trash } from 'tabler-icons-react'
+import {
+	ChangeEvent,
+	FC,
+	MouseEvent,
+	useCallback,
+	useContext,
+	useRef,
+	useState
+} from 'react'
+import { Link, useLocation, useParams } from 'react-router-dom'
+import { Check, ChevronDown, Plus, Trash } from 'tabler-icons-react'
 import Page404 from '@/pages/404/404.page'
 import { EditButton } from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button'
 import EditableTitle from '@/components/generic/editable-title/editable-title'
 import Loader from '@/components/loader/loader'
 import { ThemeContext } from '@/context/theme.context'
 import { UpdateCourseDto } from '@/types/course/update-course.dto'
-import ModuleInterface from '@/types/module/module.interface'
+import { ModuleInterface } from '@/types/module/module.interface'
+import { useAuth } from '@/hooks/useAuth.hook'
+import { useOutside } from '@/hooks/useOutside.hook'
 import { BASE_API_URL } from '@/store/api/axios'
 import courseApi from '@/store/api/course.api'
 import lessonApi from '@/store/api/lesson.api'
 import moduleApi from '@/store/api/module.api'
 import testApi from '@/store/api/test.api'
+import userProgressApi from '@/store/api/user-progress.api'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import Styles from './course.module.scss'
-
+import uploadApi from '@/store/api/upload.api'
 
 const CoursePage: FC = () => {
 	//Hooks
-	//Ui hooks
 	const { darkmode } = useContext(ThemeContext)
 	const [openedModules, setOpenedModules] = useState<number[]>([])
 	const [edit, setEdit] = useState(false)
+	const location = useLocation()
+	const { user } = useAuth()
 
 	//Fetching course id
 	const { course_id } = useParams()
@@ -75,6 +87,10 @@ const CoursePage: FC = () => {
 	const [editTestApi] = testApi.useEditTestMutation()
 	//Delete test
 	const [deleteTestApi] = testApi.useDeleteTestMutation()
+	//Upload file
+	const [uploadFileApi] = uploadApi.useUploadNewFileMutation()
+	//Delete file
+	const [deleteFileApi] = uploadApi.useDeleteFileMutation()
 	//End of data mutation functions
 
 	//Functions
@@ -91,7 +107,7 @@ const CoursePage: FC = () => {
 		)
 
 		for (let index = 0; index < controlButtons.length; index++) {
-			//@ts-ignore TODO Make types
+			//@ts-ignore
 			if (controlButtons[index].contains(event.target)) {
 				return
 			}
@@ -99,7 +115,7 @@ const CoursePage: FC = () => {
 
 		if (edit) {
 			for (let index = 0; index < names.length; index++) {
-				//@ts-ignore TODO Make types
+				//@ts-ignore
 				if (names[index].contains(event.target)) {
 					return
 				}
@@ -246,6 +262,7 @@ const CoursePage: FC = () => {
 	const moduleNames = useRef<HTMLHeadingElement[]>([])
 	const lessonNames = useRef<HTMLElement[]>([])
 	const testNames = useRef<HTMLElement[]>([])
+	const uploadIconFormRef = useRef<HTMLFormElement>(null)
 
 	//Toggle edit function
 	const toggleEdit = async () => {
@@ -294,11 +311,109 @@ const CoursePage: FC = () => {
 	// 	},
 	// 	[edit]
 	// )
+	
+	//Add icon function
+	const addIcons = async () => {
+		//@ts-ignore
+		await uploadFileApi(uploadIconFormRef.current).then(async response => {
+			//Get new icon from response
+			//@ts-ignore
+			const icons = response.data
+			//Array of current course icons ids
+			let courseIconsIds: number[] = []
+			//Check is there current course icons
+			if (course?.attributes?.icons?.data) {
+				//Add icons ids to array
+				for (const icon of course.attributes.icons.data) {
+					courseIconsIds.push(icon.id)
+				}
+			}
+			
+			//New icons ids array
+			let newIconsIds: number[] = []
+			//Add new icons to the array
+			for (const icon of icons) {
+				newIconsIds.push(icon.id)
+			}
+			
+			await editCourse({
+				id: courseId,
+				icons: [...courseIconsIds, ...newIconsIds]
+			}).then(() => refetchCourse())
+		})
+	}
+	
+	const deleteIcon = async (iconId: number) => {
+		await deleteFileApi(iconId).then(() => refetchCourse())
+	}
 
 	//End of Function
 
 	//LEARNING PART
-	//SOON //TODO Create learning functions
+	//Check is it learning page
+	const isLearningPage = location.pathname.startsWith('/my-learning')
+
+	//Api functions
+	const { data: progressData } =
+		userProgressApi.useGetProgressByCourseAndUserQuery({
+			userId: user?.id || 0,
+			courseId
+		})
+	//Get current progress from data
+	const progress = progressData?.data[0]
+
+	//Passed course content arrays
+	//Array of passed modules ids
+	//Function to get array with passed modules ids
+	const getPassedModules = useCallback(() => {
+		//Empty array
+		let passedModules: number[] = []
+
+		//Algorithm to add each module id to array
+		if (progress) {
+			for (const module of progress.attributes.modules.data) {
+				passedModules.push(module.id)
+			}
+		}
+
+		return passedModules
+	}, [progress])
+	//Constant with passed modules ids
+	const passedModulesIds = getPassedModules()
+	//Array of passed lessons ids
+	//Function to get array with passed lessons ids
+	const getPassedLessons = useCallback(() => {
+		//Empty array
+		let passedLessons: number[] = []
+
+		//Algorithm to add each lesson ыid to array
+		if (progress) {
+			for (const lesson of progress.attributes.lessons.data) {
+				passedLessons.push(lesson.id)
+			}
+		}
+
+		return passedLessons
+	}, [progress])
+	//Array of passed lessons ids
+	const passedLessons = getPassedLessons()
+	//Function to get array with passed tests ids
+	const getPassedTests = useCallback(() => {
+		//Empty array
+		let passedTests: number[] = []
+
+		//Algorithm to add each test ыid to array
+		if (progress) {
+			for (const test of progress.attributes.tests.data) {
+				passedTests.push(test.id)
+			}
+		}
+
+		return passedTests
+	}, [progress])
+	//Constant with passed modules ids
+	const passedTests = getPassedTests()
+
 	//END OF LEARNING PART
 
 	//Exception Handling
@@ -325,25 +440,39 @@ const CoursePage: FC = () => {
 								editState={edit}
 								reference={courseName}
 							/>
-							{/*</div>*/}
 							<div className={Styles.CourseIcons}>
 								{course &&
 									course.attributes.icons.data !== null &&
 									course?.attributes.icons.data.map(icon => (
 										<img
+											style={{
+												cursor: edit ? 'pointer' : 'auto'
+											}}
+											onClick={edit ? () => deleteIcon(icon.id) : () => {}}
 											key={icon.id}
 											src={`${BASE_API_URL}${icon.attributes.url}`}
 											alt={icon.attributes.name}
 										/>
 									))}
 								{edit && (
-									<button className={Styles.IconsAdd}>
-										<Plus size={18} strokeWidth={3} />
-									</button>
+									<form ref={uploadIconFormRef}>
+										<input
+											style={{ display: 'none' }}
+											type={'file'}
+											name={'files'}
+											id={'files'}
+											onChange={addIcons}
+										/>
+										<label htmlFor={'files'} className={Styles.IconsAdd}>
+											<Plus size={18} strokeWidth={3} />
+										</label>
+									</form>
 								)}
 							</div>
 						</div>
-						<EditButton editing={edit} toggleEdit={toggleEdit} />
+						{!isLearningPage && (
+							<EditButton editing={edit} toggleEdit={toggleEdit} />
+						)}
 					</div>
 					<p
 						className={Text.Body1Regular}
@@ -366,6 +495,9 @@ const CoursePage: FC = () => {
 								}`}
 								onClick={event => handleOpenModule(event, module.id)}
 							>
+								{isLearningPage && passedModulesIds.includes(module.id) && (
+									<div className={Styles.ModulePassed} />
+								)}
 								<div className={Styles.ModuleHeader}>
 									<h3
 										key={module.id}
@@ -419,6 +551,13 @@ const CoursePage: FC = () => {
 												}
 											>
 												{lesson.attributes.name}
+												{isLearningPage &&
+													passedLessons.includes(lesson.id) && (
+														<Check
+															size={16}
+															color={Vars['system-green-color']}
+														/>
+													)}
 											</Link>
 											{edit && (
 												<button
@@ -450,6 +589,9 @@ const CoursePage: FC = () => {
 												}
 											>
 												{test.attributes.name}
+												{isLearningPage && passedTests.includes(test.id) && (
+													<Check size={16} color={Vars['system-green-color']} />
+												)}
 											</Link>
 											{edit && (
 												<button

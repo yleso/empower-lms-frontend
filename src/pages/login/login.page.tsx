@@ -7,9 +7,8 @@ import Field from '@/components/generic/field/field'
 import Loader from '@/components/loader/loader'
 import { ThemeContext } from '@/context/theme.context'
 import EmblemLogo from '@/assets/img/logo/emblem-logo.png'
-import useActions from '@/hooks/useActions.hook'
-import useAuth from '@/hooks/useAuth.hook'
-import { login } from '@/store/auth/auth.actions'
+import { useActions } from '@/hooks/useActions.hook'
+import { useAuth } from '@/hooks/useAuth.hook'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import { AuthFieldsInterface } from './auth-fields.interface'
@@ -22,11 +21,7 @@ const LoginPage: FC = () => {
 	const { login } = useActions()
 	const { user, isLoading } = useAuth()
 
-	const {
-		register,
-		formState: { errors },
-		handleSubmit
-	} = useForm<AuthFieldsInterface>({
+	const { register, handleSubmit } = useForm<AuthFieldsInterface>({
 		mode: 'onChange'
 	})
 	const {
@@ -79,6 +74,7 @@ const LoginPage: FC = () => {
 								name={idName}
 								onChange={idOnChange}
 								onBlur={idOnBlur}
+								required
 							/>
 						</div>
 						<div className={Styles.FormInput}>
@@ -92,14 +88,15 @@ const LoginPage: FC = () => {
 								name={passwordName}
 								onChange={passwordOnChange}
 								onBlur={passwordOnBlur}
+								required
 							/>
 						</div>
-						{errors && (
+						{/*TODO Make auth errors*/}
+						{false && (
 							<span className={`${Text.Body2Regular} ${Styles.AuthLoginError}`}>
 								Incorrect email or password
 							</span>
-						)}{' '}
-						{/*TODO Do auth error*/}
+						)}
 						<Button text={'Log in'} disabled={isLoading} submit fill large />
 					</form>
 

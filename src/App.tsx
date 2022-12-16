@@ -16,6 +16,7 @@ import AuthProvider from '@/providers/auth.provider'
 import store, { persistor } from '@/store/store'
 import Layout from './layout/layout'
 import KnowledgebasePage from './pages/knowledge-base/knowledge-base.page'
+import ApolloClientProvider from '@/providers/apollo-client.provider'
 
 
 function App() {
@@ -23,72 +24,74 @@ function App() {
 		<>
 			<Provider store={store}>
 				<PersistGate persistor={persistor} loading={null}>
-					<ThemeContextProvider>
-						<BrowserRouter>
-							<AuthProvider>
-								<Layout>
-									<Routes>
-										<Route
-											path='/'
-											element={<Navigate to={'/knowledge-base'} />}
-										/>
-										<Route path='/login' element={<LoginPage />} />
-										<Route path='/register' element={<LoginPage />} />
-										<Route path='/profile' element={<ProfilePage />} />
-										<Route
-											path='/employee/:employee_id'
-											element={<ProfilePage />}
-										/>
-										<Route path='/my-learning' element={<MylearningPage />} />
-										<Route
-											path='/knowledge-base'
-											element={<KnowledgebasePage />}
-										/>
-										<Route
-											path='/knowledge-base/:dep_id'
-											element={<KnowledgebasePage />}
-										/>
-										<Route
-											path='/knowledge-base/team/:team_id'
-											element={<TeamPage />}
-										/>
-										{/*End of Course*/}
-										{/*Course for creating*/}
-										<Route
-											path='/knowledge-base/course/:course_id/'
-											element={<CoursePage />}
-										/>
-										<Route
-											path='/knowledge-base/course/:course_id/lesson/:lesson_id'
-											element={<LessonPage />}
-										/>
-										<Route
-											path='/knowledge-base/course/:course_id/test/:test_id'
-											element={<TestPage />}
-										/>
-										{/*End of course for creating*/}
-										{/*Course for learning*/}
-										<Route
-											path='/my-learning/course/:course_id/'
-											element={<CoursePage />}
-										/>
-										<Route
-											path='/my-learning/course/:course_id/lesson/:lesson_id'
-											element={<LessonPage />}
-										/>
-										<Route
-											path='/my-learning/course/:course_id/test/:test_id'
-											element={<TestPage />}
-										/>
-										{/*End of course for learning*/}
-										{/*End of Course*/}
-										<Route path='/admin-panel' element={<AdminPanelPage />} />
-										<Route path='/*' element={<Page404 />} />
-									</Routes>
-								</Layout>
-							</AuthProvider>
-						</BrowserRouter>
-					</ThemeContextProvider>
+					<ApolloClientProvider>
+						<ThemeContextProvider>
+							<BrowserRouter>
+								<AuthProvider>
+									<Layout>
+										<Routes>
+											<Route
+												path='/'
+												element={<Navigate to={'/knowledge-base'} />}
+											/>
+											<Route path='/login' element={<LoginPage />} />
+											<Route path='/register' element={<LoginPage />} />
+											<Route path='/profile' element={<ProfilePage />} />
+											<Route
+												path='/employee/:employee_id'
+												element={<ProfilePage />}
+											/>
+											<Route path='/my-learning' element={<MylearningPage />} />
+											<Route
+												path='/knowledge-base'
+												element={<KnowledgebasePage />}
+											/>
+											<Route
+												path='/knowledge-base/:dep_id'
+												element={<KnowledgebasePage />}
+											/>
+											<Route
+												path='/knowledge-base/team/:team_id'
+												element={<TeamPage />}
+											/>
+											{/*End of Course*/}
+											{/*Course for creating*/}
+											<Route
+												path='/knowledge-base/course/:course_id/'
+												element={<CoursePage />}
+											/>
+											<Route
+												path='/knowledge-base/course/:course_id/lesson/:lesson_id'
+												element={<LessonPage />}
+											/>
+											<Route
+												path='/knowledge-base/course/:course_id/test/:test_id'
+												element={<TestPage />}
+											/>
+											{/*End of course for creating*/}
+											{/*Course for learning*/}
+											<Route
+												path='/my-learning/course/:course_id/'
+												element={<CoursePage />}
+											/>
+											<Route
+												path='/my-learning/course/:course_id/lesson/:lesson_id'
+												element={<LessonPage />}
+											/>
+											<Route
+												path='/my-learning/course/:course_id/test/:test_id'
+												element={<TestPage />}
+											/>
+											{/*End of course for learning*/}
+											{/*End of Course*/}
+											<Route path='/admin-panel' element={<AdminPanelPage />} />
+											<Route path='/*' element={<Page404 />} />
+										</Routes>
+									</Layout>
+								</AuthProvider>
+							</BrowserRouter>
+						</ThemeContextProvider>
+					</ApolloClientProvider>
 				</PersistGate>
 			</Provider>
 		</>

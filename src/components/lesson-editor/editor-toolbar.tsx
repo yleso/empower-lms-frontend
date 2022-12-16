@@ -90,7 +90,6 @@ export const QuillToolbar: FC<{ toolbarId: string }> = ({ toolbarId }) => {
 		<div id={toolbarId}>
 			<span className='ql-formats'>
 				<button className='ql-bold' />
-				<button className='ql-italic' />
 				<button className='ql-underline' />
 				<button className='ql-strike' />
 			</span>
@@ -121,8 +120,8 @@ export const QuillToolbar: FC<{ toolbarId: string }> = ({ toolbarId }) => {
 			<span className='ql-formats'>
 				<button className='ql-list' value='ordered' />
 				<button className='ql-list' value='bullet' />
-				<button className='ql-indent' value='-1' />
-				<button className='ql-indent' value='+1' />
+				{/*<button className='ql-indent' value='-1' />*/}
+				{/*<button className='ql-indent' value='+1' />*/}
 			</span>
 			<span className='ql-formats'>
 				<button className='ql-blockquote' />

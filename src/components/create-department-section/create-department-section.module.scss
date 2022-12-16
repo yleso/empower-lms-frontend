@@ -1,0 +1,20 @@
+@import '@/styles/colors';
+
+.Form,
+.Field,
+.RadioGrid {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.Field,
+.RadioGrid {
+	gap: 8px;
+}
+
+//Darkmode
+
+.FieldDark {
+	color: $system-white-color;
+}

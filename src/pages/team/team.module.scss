@@ -35,7 +35,7 @@
 
 .CoursesGrid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(296px, 1fr));
 	grid-gap: 32px;
 }
 
@@ -61,19 +61,6 @@
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	grid-gap: 32px;
-}
-
-.GlossaryWord {
-	color: $system-black-color;
-
-	&.GlossaryWordDark {
-		color: $system-white-color;
-	}
-
-	span {
-		color: $brand-main-color;
-		display: inline-block;
-	}
 }
 
 .GlossaryFilters {
@@ -106,13 +93,6 @@
 	//Glossary
 	.GlossaryList {
 		grid-template-columns: repeat(3, 1fr);
-	}
-}
-
-@media screen and (min-width: 1440px) {
-	//Courses
-	.CoursesGrid {
-		grid-template-columns: repeat(4, 1fr);
 	}
 }
 

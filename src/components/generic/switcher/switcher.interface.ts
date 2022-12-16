@@ -1,4 +1,6 @@
+import { Dispatch, SetStateAction } from 'react'
+
 export default interface SwitcherInterface {
 	state: boolean
-	toggle: Function
+	toggle: Dispatch<SetStateAction<boolean>>
 }

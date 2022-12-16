@@ -19,16 +19,16 @@ const answerApi = api.injectEndpoints({
 				body: {
 					data: dto
 				}
-			}),
-			invalidatesTags: ['Answer']
+			})
+			// invalidatesTags: ['Answer']
 		}),
 		//Delete Answer
 		deleteAnswer: builder.mutation<{ data: AnswerInterface }, number>({
 			query: courseId => ({
 				url: `answers/${courseId}`,
 				method: 'DELETE'
-			}),
-			invalidatesTags: ['Answer']
+			})
+			// invalidatesTags: ['Answer']
 		}),
 		//Edit Answer
 		editAnswer: builder.mutation<{ data: AnswerInterface }, UpdateAnswerDto>({

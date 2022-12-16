@@ -8,8 +8,8 @@ const testApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get Course
 		getTest: builder.query<{ data: TestInterface }, number>({
-			query: courseId => `tests/${courseId}`,
-			providesTags: () => [{ type: 'Course' }]
+			query: courseId => `tests/${courseId}`
+			// providesTags: () => [{ type: 'Test' }]
 		}),
 		//Create Test
 		createTest: builder.mutation<
@@ -24,8 +24,8 @@ const testApi = api.injectEndpoints({
 				body: {
 					data: dto
 				}
-			}),
-			invalidatesTags: ['Test']
+			})
+			// invalidatesTags: ['Test']
 		}),
 		//Edit Test
 		editTest: builder.mutation<
@@ -40,8 +40,8 @@ const testApi = api.injectEndpoints({
 				body: {
 					data: dto
 				}
-			}),
-			invalidatesTags: ['Test']
+			})
+			// invalidatesTags: ['Test']
 		}),
 		//Delete Test
 		deleteTest: builder.mutation<
@@ -53,8 +53,8 @@ const testApi = api.injectEndpoints({
 			query: testId => ({
 				url: `tests/${testId}`,
 				method: 'DELETE'
-			}),
-			invalidatesTags: ['Test']
+			})
+			// invalidatesTags: ['Test']
 		})
 	})
 })

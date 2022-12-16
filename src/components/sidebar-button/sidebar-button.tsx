@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Plus } from 'tabler-icons-react'
 import CoursePopup from '@/components/team-popups/course-popup/course-popup'
-import useOutside from '@/hooks/useOutside.hook'
+import { useOutside } from '@/hooks/useOutside.hook'
 import Text from '@/styles/text.module.scss'
 import Styles from './sidebar-button.module.scss'
 

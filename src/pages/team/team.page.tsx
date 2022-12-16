@@ -1,9 +1,12 @@
-import React, { FC, useContext, useState } from 'react'
+import React, { FC, useContext, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Page404 from '@/pages/404/404.page'
 import Faq from '@/components/FAQ/FAQ'
 import Course from '@/components/course/course'
-import { AddButton } from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button'
+import {
+	AddButton,
+	EditButton as LargeEgitButton
+} from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button'
 import EditButton from '@/components/generic/buttons/admin-buttons/edit-buton/edit-button'
 import Title from '@/components/generic/title/title'
 import Loader from '@/components/loader/loader'
@@ -14,10 +17,11 @@ import MaterialPopup from '@/components/team-popups/material-popup/material-popu
 import TeammatePopup from '@/components/team-popups/teammate-popup/teammate-popup'
 import WordPopup from '@/components/team-popups/word-popup/word-popup'
 import Teammate from '@/components/teammate/teammate'
+import Word from '@/components/word/word'
 import { ThemeContext } from '@/context/theme.context'
-import useAuth from '@/hooks/useAuth.hook'
+import { useAuth } from '@/hooks/useAuth.hook'
 import { useGetAuthRole } from '@/hooks/useGetAuthRole.hook'
-import useOutside from '@/hooks/useOutside.hook'
+import { useOutside } from '@/hooks/useOutside.hook'
 import {
 	FilterWords,
 	glossaryFilters,
@@ -26,45 +30,68 @@ import {
 import { BASE_API_URL } from '@/store/api/axios'
 import courseApi from '@/store/api/course.api'
 import employeeApi from '@/store/api/employee.api'
+import faqApi from '@/store/api/faq.api'
 import materialApi from '@/store/api/material.api'
 import teamApi from '@/store/api/team.api'
+import userProgressApi from '@/store/api/user-progress.api'
+import wordApi from '@/store/api/word.api'
 import Text from '@/styles/text.module.scss'
 import Styles from './team.module.scss'
 
 
 const TeamPage: FC = () => {
+	//Hooks
+	//Ui hooks
 	const { darkmode } = useContext(ThemeContext)
+	//Hooks to work with api
 	const { team_id } = useParams()
+	//Get team id
 	const teamId = Number(team_id) || 0
+	//User role
+	const { userRole } = useGetAuthRole()
+	//User
+	const { user } = useAuth()
+	//User id
+	const userId = user?.id || 0
 
 	//Hooks
 	//Ui hooks
 	const [activeFilter, setActiveFilter] = useState(glossaryFilters[0])
 	const [materialFilter, setMaterialFilter] = useState(materialsFilters[0])
+	//Edit states
+	//Words
+	const [wordEdit, setWordEdit] = useState(false)
+	//Faq
+	const [faqEdit, setFaqEdit] = useState(false)
 	//Hook to work with api
 	const navigate = useNavigate()
 
 	//Popups
+	//Course
 	const {
 		isShow: courseShow,
 		setIsShow: setCourseShow,
 		ref: courseRef
 	} = useOutside(false)
+	//Employee
 	const {
 		isShow: teammateShow,
 		setIsShow: setTeammateShow,
 		ref: teammateRef
 	} = useOutside(false)
+	//Material
 	const {
 		isShow: materialShow,
 		setIsShow: setMaterialShow,
 		ref: materialRef
 	} = useOutside(false)
+	//Word
 	const {
 		isShow: wordShow,
 		setIsShow: setWordShow,
 		ref: wordRef
 	} = useOutside(false)
+	//FAQ
 	const {
 		isShow: faqShow,
 		setIsShow: setFaqShow,
@@ -72,53 +99,150 @@ const TeamPage: FC = () => {
 	} = useOutside(false)
 
 	//Data fetching
-	const { userRole } = useGetAuthRole()
-
 	//Team data
+	//Team
 	const { data: teamData, isLoading: teamLoading } =
 		teamApi.useGetTeamQuery(teamId)
-	const { data: teamEmployeesData } = employeeApi.useGetTeamMembersQuery(teamId)
-	const { data: coursesData } = courseApi.useGetTeamCoursesQuery(teamId)
-	const { data: materialsData } = materialApi.useGetTeamMaterialsQuery(teamId)
+	//Courses
+	const { data: coursesData, isLoading: coursesLoading } =
+		courseApi.useGetTeamCoursesQuery(teamId)
+	//Team employees
+	const { data: teamEmployeesData, isLoading: employeesLoading } =
+		employeeApi.useGetTeamMembersQuery(teamId)
+	//Materials
+	const { data: materialsData, isLoading: materialsLoading } =
+		materialApi.useGetTeamMaterialsQuery(teamId)
+	//Words
+	const { data: wordsData, isLoading: wordsLoading } =
+		wordApi.useGetTeamWordsQuery(teamId)
+	//FAQs
+	const {
+		data: faqsData,
+		isLoading: faqLoading,
+		isFetching: faqFetching
+	} = faqApi.useGetTeamFaqsQuery(teamId)
+	//User assigned courses
+	const {
+		data: assignedCoursesData,
+		isFetching: progressFetching,
+		isLoading: progressLoading,
+		refetch: refetchProgresses
+	} = userProgressApi.useGetUserProgressesCoursesQuery(userId)
 	//End of data fetching
 
 	//Data sorting
 
 	//Team
-	const team = teamData?.data
-
+	const [team, setTeam] = useState(teamData?.data)
+	const [teamEmployees, setTeamEmployees] = useState(teamEmployeesData)
 	//Courses
-	const courses = coursesData?.data
-
+	const [courses, setCourses] = useState(coursesData?.data)
 	//Materials
-	const materials = materialsData?.data
-
+	const [materials, setMaterials] = useState(materialsData?.data)
 	//words
-	const wordsData = team?.attributes.words
-	const words = wordsData?.data
-
+	const [words, setWords] = useState(wordsData?.data)
 	//FAQs
-	const faqsData = team?.attributes.faqs
-	const faqs = faqsData?.data
+	const [faqs, setFaqs] = useState(faqsData?.data)
+
+	//UseEffects to work with api
+	//Team
+	useEffect(() => {
+		setTeam(teamData?.data)
+	}, [teamData])
+	//Team employees
+	useEffect(() => {
+		setTeamEmployees(teamEmployeesData)
+	}, [teamEmployeesData])
+	//Courses
+	useEffect(() => {
+		setCourses(coursesData?.data)
+	}, [coursesData])
+	//Materials
+	useEffect(() => {
+		setMaterials(materialsData?.data)
+	}, [materialsData])
+	//words
+	useEffect(() => {
+		setWords(wordsData?.data)
+	}, [wordsLoading])
+	//FAQs
+	useEffect(() => {
+		setFaqs(faqsData?.data)
+	}, [faqFetching])
+	//User progress refetch
+	useEffect(() => {
+		refetchProgresses()
+	}, [])
 
 	//End of data sorting
 
+	//Functions
+	//Api functions
+	//Word
+	//Delete word api
+	const [deleteWordApi] = wordApi.useDeleteWordMutation()
+	//Delete faq function
+	const deleteWord = async (wordId: number) => {
+		//Delete current faq from faqs list
+		setWords(currentWordList =>
+			//@ts-ignore
+			currentWordList.filter(word => word.id !== wordId)
+		)
+		//Delete faq
+		await deleteWordApi(wordId)
+	}
+	//Faq
+	//Delete faq api
+	const [deleteFaqApi] = faqApi.useDeleteFaqMutation()
+	//Delete faq function
+	const deleteFaq = async (faqId: number) => {
+		//Delete current faq from faqs list
+		setFaqs(currentFaqList =>
+			//@ts-ignore
+			currentFaqList.filter(faq => faq.id !== faqId)
+		)
+		//Delete faq
+		await deleteFaqApi(faqId)
+	}
+
 	//Filtering
 	const filtredWords = FilterWords(words, activeFilter)
+	//Assigned courses ids array
+	const assignedCoursesIds = useMemo(() => {
+		//Empty array
+		let coursesIds: number[] = []
+		//Check does the progress data exist
+		if (assignedCoursesData?.data) {
+			//Add assigned courses ids to array
+			for (const userProgress of assignedCoursesData.data) {
+				coursesIds.push(userProgress.attributes.course.data.id)
+			}
+		}
+		//Return array
+		return coursesIds
+	}, [progressFetching])
 
 	//Controls
-	const { user } = useAuth()
-	const { data: userTeamData } = employeeApi.useGetEmployeeTeamQuery(
-		user?.id || 0
-	)
+	const { data: userTeamData } = employeeApi.useGetEmployeeTeamQuery(userId)
 	const userTeamId = userTeamData?.data[0].id
 	const isUserInTeam = String(teamId) === String(userTeamId)
 	const userRoleType = userRole?.type || 'employee'
 	const canUserEditAdmin =
-		userRoleType === 'administrator' || userRoleType === 'manager'
+		userRoleType === 'administrator' ||
+		userRoleType === 'manager' ||
+		userRoleType === 'editor'
 	const canUserEdit = isUserInTeam || canUserEditAdmin
 
-	if (teamLoading) return <Loader />
+	if (
+		teamLoading ||
+		coursesLoading ||
+		employeesLoading ||
+		materialsLoading ||
+		wordsLoading ||
+		faqLoading ||
+		progressLoading
+	)
+		return <Loader />
 	if (!team) return <Page404 />
 
 	return (
@@ -128,27 +252,32 @@ const TeamPage: FC = () => {
 				popupShow={courseShow}
 				setPopupShow={setCourseShow}
 				popupRef={courseRef}
+				setValue={setCourses}
 			/>
 			<TeammatePopup
 				popupShow={teammateShow}
 				setPopupShow={setTeammateShow}
 				popupRef={teammateRef}
 				teamName={team.attributes.name}
+				setValue={setTeamEmployees}
 			/>
 			<MaterialPopup
 				popupShow={materialShow}
 				setPopupShow={setMaterialShow}
 				popupRef={materialRef}
+				setValue={setMaterials}
 			/>
 			<WordPopup
 				popupShow={wordShow}
 				setPopupShow={setWordShow}
 				popupRef={wordRef}
+				setValue={setWords}
 			/>
 			<FaqPopup
 				popupShow={faqShow}
 				setPopupShow={setFaqShow}
 				popupRef={faqRef}
+				setValue={setFaqs}
 			/>
 			{/*Popups*/}
 
@@ -164,12 +293,14 @@ const TeamPage: FC = () => {
 					{courses &&
 						courses.map(course => (
 							<div
-								className={`${canUserEditAdmin && Styles.CursorPointer}`}
+								className={`${
+									canUserEditAdmin && isUserInTeam && Styles.CursorPointer
+								}`}
 								key={course.id}
 								onClick={
-									!canUserEditAdmin
-										? () => {}
-										: () => navigate(`/knowledge-base/course/${course.id}`)
+									canUserEditAdmin && isUserInTeam
+										? () => navigate(`/knowledge-base/course/${course.id}`)
+										: () => {}
 								}
 							>
 								<Course
@@ -177,7 +308,11 @@ const TeamPage: FC = () => {
 									name={course.attributes.name}
 									description={course.attributes.description}
 									icons={course.attributes.icons.data}
-									disabled={isUserInTeam}
+									disabled={
+										!isUserInTeam ||
+										canUserEditAdmin ||
+										assignedCoursesIds.includes(course.id)
+									}
 								/>
 							</div>
 						))}
@@ -194,8 +329,8 @@ const TeamPage: FC = () => {
 					)}
 				</div>
 				<div className={Styles.TeamGrid}>
-					{teamEmployeesData &&
-						teamEmployeesData.map(employee => (
+					{teamEmployees &&
+						teamEmployees.map(employee => (
 							<Link to={`/employee/${employee.id}`} key={employee.id}>
 								<Teammate
 									avatarPath={
@@ -212,43 +347,43 @@ const TeamPage: FC = () => {
 				</div>
 			</section>
 
-			<section className={Styles.Section}>
-				<div className={`${Styles.Header} ${Styles.GlossaryHeader}`}>
-					<Title text={'Materials'} />
-					<ul className={Styles.GlossaryFilters}>
-						{materialsFilters.map((filter, index) => (
-							<li key={index}>
-								<button
-									className={`${Text.Caption1Regular} ${
-										materialFilter === filter && Styles.GlossaryActiveFilter
-									}`}
-									onClick={() => setMaterialFilter(filter)}
-								>
-									{filter}
-								</button>
-							</li>
-						))}
-					</ul>
-					{canUserEdit && (
-						<div className={Styles.HeaderButtons}>
-							<EditButton action={() => {}} />
-							<AddButton action={() => setMaterialShow(true)} />
-						</div>
-					)}
-				</div>
-				<div className={Styles.MaterialsGrid}>
-					{materials &&
-						materials.map(material => (
-							<Material
-								key={material.id}
-								format={material.attributes.format}
-								name={material.attributes.name}
-								description={material.attributes.description}
-								link={material.attributes.file.data.attributes.url}
-							/>
-						))}
-				</div>
-			</section>
+			{/*<section className={Styles.Section}>*/}
+			{/*	<div className={`${Styles.Header} ${Styles.GlossaryHeader}`}>*/}
+			{/*		<Title text={'Materials'} />*/}
+			{/*		<ul className={Styles.GlossaryFilters}>*/}
+			{/*			{materialsFilters.map(filter => (*/}
+			{/*				<li key={filter}>*/}
+			{/*					<button*/}
+			{/*						className={`${Text.Caption1Regular} ${*/}
+			{/*							materialFilter === filter && Styles.GlossaryActiveFilter*/}
+			{/*						}`}*/}
+			{/*						onClick={() => setMaterialFilter(filter)}*/}
+			{/*					>*/}
+			{/*						{filter}*/}
+			{/*					</button>*/}
+			{/*				</li>*/}
+			{/*			))}*/}
+			{/*		</ul>*/}
+			{/*		{canUserEdit && (*/}
+			{/*			<div className={Styles.HeaderButtons}>*/}
+			{/*				<EditButton action={() => {}} />*/}
+			{/*				<AddButton action={() => setMaterialShow(true)} />*/}
+			{/*			</div>*/}
+			{/*		)}*/}
+			{/*	</div>*/}
+			{/*	<div className={Styles.MaterialsGrid}>*/}
+			{/*		{materials &&*/}
+			{/*			materials.map(material => (*/}
+			{/*				<Material*/}
+			{/*					key={material.id}*/}
+			{/*					format={material.attributes.format}*/}
+			{/*					name={material.attributes.name}*/}
+			{/*					description={material.attributes.description}*/}
+			{/*					link={material.attributes.file.data.attributes.url}*/}
+			{/*				/>*/}
+			{/*			))}*/}
+			{/*	</div>*/}
+			{/*</section>*/}
 
 			<section className={Styles.Section}>
 				<div className={`${Styles.Header} ${Styles.GlossaryHeader}`}>
@@ -269,27 +404,25 @@ const TeamPage: FC = () => {
 					</ul>
 					{canUserEdit && (
 						<div className={Styles.HeaderButtons}>
-							<EditButton action={() => {}} />
-							<AddButton action={() => setWordShow(true)} />
+							{wordEdit && <AddButton action={() => setWordShow(true)} />}
+							<LargeEgitButton
+								editing={wordEdit}
+								toggleEdit={() => setWordEdit(edit => !edit)}
+							/>
 						</div>
 					)}
 				</div>
 				<ul className={Styles.GlossaryList}>
 					{filtredWords &&
-						filtredWords.map((word, index) => (
-							<li
-								key={index}
-								className={`${Styles.GlossaryWord} ${
-									darkmode && Styles.GlossaryWordDark
-								}`}
-							>
-								<p className={Text.Body1Regular}>
-									<span className={Text.H6Bold}>
-										{word.attributes.name} -&nbsp;
-									</span>
-									{word.attributes.definition}
-								</p>
-							</li>
+						filtredWords.map(word => (
+							<Word
+								key={word.id}
+								id={word.id}
+								name={word.attributes.name}
+								definition={word.attributes.definition}
+								editState={wordEdit}
+								deleteFunction={deleteWord}
+							/>
 						))}
 				</ul>
 			</section>
@@ -299,18 +432,24 @@ const TeamPage: FC = () => {
 					<Title text={'FAQ'} />
 					{canUserEdit && (
 						<div className={Styles.HeaderButtons}>
-							<EditButton action={() => {}} />
-							<AddButton action={() => setFaqShow(true)} />
+							{faqEdit && <AddButton action={() => setFaqShow(true)} />}
+							<LargeEgitButton
+								editing={faqEdit}
+								toggleEdit={() => setFaqEdit(edit => !edit)}
+							/>
 						</div>
 					)}
 				</div>
 				<div className={Styles.FAQGrid}>
 					{faqs &&
-						faqs.map((FAQ, index) => (
+						faqs.map(FAQ => (
 							<Faq
-								key={index}
+								key={FAQ.id}
+								id={FAQ.id}
 								question={FAQ.attributes.question}
 								answer={FAQ.attributes.answer}
+								editState={faqEdit}
+								deleteFunction={deleteFaq}
 							/>
 						))}
 				</div>

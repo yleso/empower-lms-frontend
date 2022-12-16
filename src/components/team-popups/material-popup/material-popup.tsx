@@ -5,7 +5,7 @@ import Field from '@/generic/field/field'
 import Button from '@/components/generic/buttons/primary-button/button'
 import { ThemeContext } from '@/context/theme.context'
 import { CreateCourseDto } from '@/types/course/create-course.dto'
-import courseApi from '@/store/api/course.api'
+import materialApi from '@/store/api/material.api'
 import Text from '@/styles/text.module.scss'
 import Popup from '../../popup/popup'
 import Styles from '../faq-popup/faq-popup.module.scss'
@@ -17,20 +17,17 @@ type FixType = any
 const MaterialPopup: FC<PopupInterface> = ({
 	popupShow,
 	setPopupShow,
-	popupRef
+	popupRef,
+	setValue
 }) => {
 	const { darkmode } = useContext(ThemeContext)
 	const { team_id: teamId } = useParams()
 
-	const {
-		register,
-		formState: { errors },
-		handleSubmit
-	} = useForm<CreateCourseDto>({
+	const { register, handleSubmit } = useForm<CreateCourseDto>({
 		mode: 'onChange'
 	})
 
-	const [createCourse, { isLoading }] = courseApi.useCreateCourseMutation()
+	const [createMaterial] = materialApi.useAddMaterialMutation()
 
 	const onSubmit: SubmitHandler<FixType> = async data => {
 		const materialData = {
@@ -39,8 +36,14 @@ const MaterialPopup: FC<PopupInterface> = ({
 		}
 
 		setPopupShow(false)
-		await createCourse(materialData)
-		!isLoading && window.location.reload()
+		await createMaterial(materialData).then(response => {
+			//Get new material from response
+			//@ts-ignore
+			const newMaterial = response.data.data
+			//Add new material to current list
+			//@ts-ignore
+			setValue(currentMaterials => [...currentMaterials, newMaterial])
+		})
 	}
 
 	return (

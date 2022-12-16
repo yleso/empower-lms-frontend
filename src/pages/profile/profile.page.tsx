@@ -1,3 +1,4 @@
+import { useQuery } from '@apollo/client'
 import React, {
 	ChangeEvent,
 	DragEvent,
@@ -10,23 +11,28 @@ import React, {
 } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import Page404 from '@/pages/404/404.page'
+import {
+	learningsQuery,
+	progressInterface
+} from '@/pages/my-learning/learnings.query'
 import AssignedCourseMini from '@/components/assigned-course/mini/assigned-course'
+import { AssignedCourseInterface } from '@/components/assigned-course/mini/assigned-course.interface'
 import Avatar from '@/components/avatar/avatar'
 import Certificate from '@/components/certificate/certificate'
+import { CertificateInterface } from '@/components/certificate/sertificate.interface'
 import Field from '@/components/generic/field/field'
+import Loader from '@/components/loader/loader'
 import Popup from '@/components/popup/popup'
 import { ThemeContext } from '@/context/theme.context'
-import useAuth from '@/hooks/useAuth.hook'
-import useOutside from '@/hooks/useOutside.hook'
+import { useAuth } from '@/hooks/useAuth.hook'
+import { useOutside } from '@/hooks/useOutside.hook'
+import { calculateProgress } from '@/utils/calculate-progress.util'
 import employeeApi from '@/store/api/employee.api'
 import uploadApi from '@/store/api/upload.api'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
-import { CertificatesData } from '../../data/certificates.data'
-import { ProfileAssignedData } from '../../data/profile-assigned.data'
 import { ProfileInputInterface } from './profile-input.interface'
 import Styles from './profile.module.scss'
-
 
 const ProfilePage: FC = () => {
 	//Hooks
@@ -40,7 +46,11 @@ const ProfilePage: FC = () => {
 	const profileId: number = isProfile && user ? user.id : userId ? +userId : 0
 
 	//Data fetch
-	const { data: userData } = employeeApi.useGetEmployeeQuery(profileId)
+	const { data: userData, isLoading: userDataLoading } =
+		employeeApi.useGetEmployeeQuery(profileId)
+	const { data: progressData, loading: progressLoading } = useQuery(
+		learningsQuery(profileId)
+	)
 	//End of fetching data
 
 	const User = { ...userData }
@@ -55,7 +65,76 @@ const ProfilePage: FC = () => {
 		{ label: 'Line manager', value: User.line_manager, type: 'text' }
 	]
 
-	const [activeSwitch, setActiveSwitch] = useState('Assigned')
+	const [activeSwitch, setActiveSwitch] = useState<'Assigned' | 'Certificates'>(
+		'Assigned'
+	)
+
+	const [progresses, setProgresses] = useState<progressInterface[]>()
+
+	useEffect(() => {
+		setProgresses(progressData?.userProgresses.data)
+	}, [progressData])
+
+	//Assigned courses array
+	const { assignedCourses, certificates } = useMemo(() => {
+		let assignedCourses: AssignedCourseInterface[] = []
+		let certificates: CertificateInterface[] = []
+
+		if (progresses) {
+			for (const progress of progresses) {
+				const lessonsCount = (): number => {
+					let lessonsCount = 0
+
+					for (const module of progress.attributes.course.data.attributes
+						.modules.data) {
+						lessonsCount += module.attributes.lessons.data.length
+					}
+
+					return lessonsCount
+				}
+
+				const testsCount = (): number => {
+					let testsCount = 0
+
+					for (const module of progress.attributes.course.data.attributes
+						.modules.data) {
+						testsCount += module.attributes.tests.data.length
+					}
+
+					return testsCount
+				}
+
+				const totalProgress = calculateProgress(
+					lessonsCount(),
+					progress.attributes.lessons.data.length,
+					testsCount(),
+					progress.attributes.tests.data.length
+				)
+
+				if (totalProgress !== 100) {
+					const formattedAssignedCourse = {
+						id: progress.id,
+						name: progress.attributes.course.data.attributes.name,
+						progress: totalProgress,
+						startedOn: progress.attributes.createdAt
+					}
+
+					assignedCourses.push(formattedAssignedCourse)
+				} else {
+					const formattedCertificate = {
+						id: progress.id,
+						name: progress.attributes.course.data.attributes.name,
+						startedOn: progress.attributes.createdAt,
+						finishedOn: progress.attributes.updatedAt
+					}
+
+					certificates.push(formattedCertificate)
+				}
+			}
+		}
+
+		return { assignedCourses, certificates }
+	}, [progresses])
 
 	// const {
 	// 	register,
@@ -155,6 +234,7 @@ const ProfilePage: FC = () => {
 		}
 	}, [isShow])
 
+	if (userDataLoading || progressLoading) return <Loader />
 	if (!userData) return <Page404 />
 
 	return (
@@ -171,9 +251,12 @@ const ProfilePage: FC = () => {
 					/>
 					<label
 						htmlFor={Styles.UploadAvatar}
-						className={Styles.DragAndDrop}
+						className={`${Styles.DragAndDrop} ${Text.H6Bold}`}
 						style={{
-							backgroundColor: uploadError ? Vars['system-red-color'] : '',
+							backgroundColor: uploadError
+								? `${Vars['system-red-color']}50`
+								: '',
+							borderColor: uploadError ? Vars['system-red-color'] : '',
 							opacity: !drag ? 1 : 0.5
 						}}
 						onDragStart={event => dragStartHandler(event)}
@@ -181,11 +264,18 @@ const ProfilePage: FC = () => {
 						onDragOver={event => dragStartHandler(event)}
 						onDrop={event => onDropHandler(event)}
 					>
-						{!uploadError
-							? !drag
-								? 'Drag and drop your image here or choose file'
-								: 'Release the file'
-							: 'Some error occurred!'}
+						{!uploadError ? (
+							!drag ? (
+								<span>
+									Drag and drop your image here or{' '}
+									<span className={Styles.Underline}>choose file</span>
+								</span>
+							) : (
+								'Release the file'
+							)
+						) : (
+							'Some error occurred!'
+						)}
 					</label>
 				</form>
 			</Popup>
@@ -214,12 +304,6 @@ const ProfilePage: FC = () => {
 								Change avatar
 							</button>
 						)}
-						{/*<button*/}
-						{/*	onClick={() => setIsShow(true)}*/}
-						{/*	className={`${Text.Caption1Medium} ${Styles.AvatarEdit}`}*/}
-						{/*>*/}
-						{/*	Change avatar*/}
-						{/*</button>*/}
 					</div>
 					<div className={Styles.ProfileGrid}>
 						{ProfileData.map((inputData, index) => (
@@ -229,7 +313,7 @@ const ProfilePage: FC = () => {
 									name={inputData.label}
 									type={inputData.type}
 									theme={!darkmode ? 'grey' : 'black'}
-									value={inputData.value}
+									value={inputData.value || ''}
 									disabled
 								/>
 							</div>
@@ -310,9 +394,10 @@ const ProfilePage: FC = () => {
 				{activeSwitch === 'Assigned' ? (
 					<>
 						<div className={Styles.AssignedGrid}>
-							{ProfileAssignedData.map((assigned, index) => (
+							{assignedCourses.map(assigned => (
 								<AssignedCourseMini
-									key={index}
+									key={assigned.id}
+									id={assigned.id}
 									name={assigned.name}
 									progress={assigned.progress}
 									startedOn={assigned.startedOn}
@@ -323,11 +408,13 @@ const ProfilePage: FC = () => {
 				) : activeSwitch === 'Certificates' ? (
 					<>
 						<div className={Styles.CertificatesGrid}>
-							{CertificatesData.map((certificate, index) => (
+							{certificates.map(certificate => (
 								<Certificate
-									key={index}
+									key={certificate.id}
+									id={certificate.id}
 									name={certificate.name}
-									passedIn={certificate.passedIn}
+									startedOn={certificate.startedOn}
+									finishedOn={certificate.finishedOn}
 								/>
 							))}
 						</div>

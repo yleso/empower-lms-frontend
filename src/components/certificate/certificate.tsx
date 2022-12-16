@@ -1,9 +1,11 @@
-import { ThemeContext } from '@/context/theme.context'
+import moment from 'moment/moment'
 import { FC, useContext } from 'react'
-import Text from '../../styles/text.module.scss'
-import Vars from '../../vars/vars.json'
+import { ThemeContext } from '@/context/theme.context'
+import Text from '@/styles/text.module.scss'
+import Vars from '@/vars/vars.json'
 import Styles from './certificate.module.scss'
-import CertificateInterface from './sertificate.interface'
+import { CertificateInterface } from './sertificate.interface'
+
 
 const CertificateIcon: FC = () => {
 	return (
@@ -43,13 +45,21 @@ const CertificateIcon: FC = () => {
 const Certificate: FC<CertificateInterface> = certificate => {
 	const { darkmode } = useContext(ThemeContext)
 
+	const startedOn = Date.parse(String(certificate.startedOn))
+	const finishedOn = Date.parse(String(certificate.finishedOn))
+
+	const passedIn = moment(finishedOn).from(startedOn)
+
 	return (
 		<div
 			className={`${Styles.Certificate} ${darkmode && Styles.CertificateDark}`}
 		>
 			<CertificateIcon />
 			<h6 className={Text.H6Bold}>{certificate.name}</h6>
-			<p className={Text.Caption1Regular}>Passed in {certificate.passedIn}</p>
+			<p className={Text.Caption1Regular}>
+				Passed in&nbsp;
+				{passedIn}
+			</p>
 		</div>
 	)
 }
