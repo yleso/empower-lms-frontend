@@ -1,0 +1,38 @@
+@import '@/styles/colors';
+
+.ErrorPage {
+  margin: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+
+  h2 {
+    color: $brand-main-color;
+    line-height: 100%;
+  }
+
+  button {
+    margin-top: 16px;
+  }
+}
+
+.Text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.SmallText {
+  color: $grey-primary-color;
+}
+
+//Darkmode
+
+.ErrorPageDark {
+  .Text {
+    color: $system-white-color;
+  }
+}
