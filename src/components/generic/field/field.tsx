@@ -5,48 +5,58 @@ import { FieldInterface } from './field.interface'
 import Styles from './field.module.scss'
 
 
-const Field: FC<FieldInterface> = field => {
+const Field: FC<FieldInterface> = ({
+	name,
+	reference,
+	onChange,
+	onBlur,
+	value,
+	required,
+	disabled,
+	type,
+	theme
+}) => {
 	return (
 		<>
 			<div
 				className={`${Styles.Field} ${
-					field.theme === 'grey'
+					theme === 'grey'
 						? Styles.FieldGrey
-						: field.theme === 'darkGrey'
+						: theme === 'darkGrey'
 						? Styles.FieldDarkGrey
-						: field.theme === 'black'
+						: theme === 'black'
 						? Styles.FieldBlack
 						: Styles.FieldWhite
 				}`}
 			>
 				<>
-					{field.type === 'textarea' ? (
+					{type === 'textarea' ? (
 						<textarea
 							className={`${Text.Caption1Medium} ${Styles.Textarea}`}
-							name={field.name}
-							required={field?.required}
-							disabled={field?.disabled}
-							value={field?.value}
-							ref={field?.reference}
-							onChange={field?.onChange}
-							onBlur={field?.onBlur}
+							name={name}
+							required={required}
+							disabled={disabled}
+							value={value}
+							ref={reference}
+							onChange={onChange}
+							onBlur={onBlur}
 							rows={4}
 						/>
 					) : (
 						<input
 							className={`${Text.Caption1Medium}`}
-							name={field.name}
-							type={field?.type}
-							required={field?.required}
-							disabled={field?.disabled}
-							value={field?.value}
-							ref={field?.reference}
-							onChange={field?.onChange}
-							onBlur={field?.onBlur}
+							name={name}
+							type={type}
+							required={required}
+							disabled={disabled}
+							value={value}
+							ref={reference}
+							onChange={onChange}
+							onBlur={onBlur}
 						/>
 					)}
 				</>
-				{field.disabled && (
+				{disabled && (
 					<div>
 						<Lock size={16} />
 					</div>

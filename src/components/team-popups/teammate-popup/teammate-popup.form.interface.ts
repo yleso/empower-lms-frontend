@@ -5,5 +5,5 @@ export interface TeammatePopupFormInterface {
 	email: string
 	line_manager: string
 	job_title: string
-	phone: string
+	phone_number: string
 }

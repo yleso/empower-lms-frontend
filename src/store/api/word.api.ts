@@ -1,27 +1,23 @@
 import { CreateWordDto } from '@/types/word/create-word.dto'
-import { WordInterface } from '@/types/word/word.interface'
+import {
+	WordInterface,
+	WordWithTeamInterface
+} from '@/types/word/word.interface'
 import api from './api'
 
 const wordApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get team words
-		getTeamWords: builder.query<
-			{
-				data: Array<WordInterface>
-			},
-			number
-		>({
-			query: teamId => `words?filters[team]=${teamId}`,
+		getTeamWords: builder.query<WordInterface[], number>({
+			query: teamId => `words/team/${teamId}`,
 			providesTags: () => [{ type: 'Word' }]
 		}),
 		//Create word
 		createWord: builder.mutation<WordInterface, CreateWordDto>({
-			query: wordDto => ({
+			query: dto => ({
 				url: 'words/',
 				method: 'POST',
-				body: {
-					data: wordDto
-				}
+				body: dto
 			}),
 			invalidatesTags: ['Word']
 		}),
@@ -32,6 +28,14 @@ const wordApi = api.injectEndpoints({
 				method: 'DELETE'
 			}),
 			invalidatesTags: ['Word']
+		}),
+		//Search words
+		searchWords: builder.mutation<WordWithTeamInterface[], string>({
+			query: query => ({
+				url: `words/search/${query}`,
+				method: 'POST'
+			}),
+			invalidatesTags: ['Search']
 		})
 	})
 })

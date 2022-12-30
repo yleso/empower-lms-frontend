@@ -6,7 +6,7 @@ interface TeammateFieldsInterface {
 		| 'email'
 		| 'line_manager'
 		| 'job_title'
-		| 'phone'
+		| 'phone_number'
 	label: string
 	type: string
 }
@@ -43,7 +43,7 @@ const TeammateFields: TeammateFieldsInterface[] = [
 		type: 'text'
 	},
 	{
-		name: 'phone',
+		name: 'phone_number',
 		label: 'Phone',
 		type: 'text'
 	}

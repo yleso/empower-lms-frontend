@@ -1,20 +1,18 @@
-import { FC, useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { ThemeContext } from '@/context/theme.context';
+import { FC } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth.hook'
-import employeeApi from '@/store/api/employee.api';
-import Text from '@/styles/text.module.scss';
-import DepartmentSectionInterface from './department-section.interface';
-import Styles from './department-section.module.scss';
+import { useTheme } from '@/hooks/useTheme.hook'
+import Text from '@/styles/text.module.scss'
+import DepartmentSectionInterface from './department-section.interface'
+import Styles from './department-section.module.scss'
 
 
 const DepartmentSection: FC<DepartmentSectionInterface> = department => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	//Data fetch
 	const { user } = useAuth()
-	const { data: teamData } = employeeApi.useGetEmployeeTeamQuery(user?.id || 0)
-	const userTeamId = teamData?.data[0].id
+	const userTeamId = user?.team_id || 0
 	//End of fetching data
 
 	return (

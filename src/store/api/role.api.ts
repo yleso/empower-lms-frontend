@@ -4,13 +4,8 @@ import api from './api'
 const roleApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get all roles
-		getAllRoles: builder.query<
-			{
-				roles: UserRoleInterface[]
-			},
-			null
-		>({
-			query: () => 'users-permissions/roles/',
+		getAllRoles: builder.query<UserRoleInterface[], null>({
+			query: () => 'roles',
 			providesTags: () => [{ type: 'User' }]
 		})
 	})

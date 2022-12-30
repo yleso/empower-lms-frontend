@@ -1,21 +1,19 @@
 import { FC } from 'react'
-import Styles from './avatar.module.scss'
 import AvatarInterface from './avatar.interface'
+import Styles from './avatar.module.scss'
 
-const Avatar: FC<AvatarInterface> = (data) => {
+const Avatar: FC<AvatarInterface> = ({ avatarPath, alt, width, height }) => {
 	return (
 		<div
 			className={Styles.Avatar}
 			style={{
-				backgroundImage: `url(${data.avatarPath})`,
-				width: data.width,
-				height: data.height
+				backgroundImage: `url(${avatarPath})`,
+				width: width,
+				height: height
 			}}
 		>
 			<div />
-			<img
-				src={data.avatarPath}
-				alt={`${data.alt}`} />
+			<img src={avatarPath} alt={`${alt}`} />
 		</div>
 	)
 }

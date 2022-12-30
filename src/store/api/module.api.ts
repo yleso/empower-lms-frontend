@@ -7,39 +7,21 @@ import api from '@/store/api/api'
 const moduleApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get Course Modules
-		getCourseModules: builder.query<
-			{
-				data: ModuleInterface[]
-			},
-			number
-		>({
-			query: courseId =>
-				`modules?filters[course]=${courseId}&populate=lessons,tests&sort=id`,
+		getCourseModules: builder.query<ModuleInterface[], number>({
+			query: courseId => `modules/course/${courseId}`,
 			providesTags: () => [{ type: 'Module' }]
 		}),
 		//Create Course Module
-		createModule: builder.mutation<
-			{
-				data: ModuleInterface
-			},
-			CreateModuleDto
-		>({
+		createModule: builder.mutation<ModuleInterface, CreateModuleDto>({
 			query: dto => ({
 				url: 'modules/',
 				method: 'POST',
-				body: {
-					data: { ...dto }
-				}
+				body: dto
 			}),
 			invalidatesTags: ['Module']
 		}),
 		//Delete Module
-		deleteModule: builder.mutation<
-			{
-				data: ModuleInterface
-			},
-			number
-		>({
+		deleteModule: builder.mutation<ModuleInterface, number>({
 			query: moduleId => ({
 				url: `modules/${moduleId}`,
 				method: 'DELETE'
@@ -47,18 +29,11 @@ const moduleApi = api.injectEndpoints({
 			invalidatesTags: ['Module']
 		}),
 		//Edit Module
-		editModule: builder.mutation<
-			{
-				data: ModuleInterface
-			},
-			UpdateModuleDto
-		>({
+		editModule: builder.mutation<ModuleInterface, UpdateModuleDto>({
 			query: dto => ({
 				url: `modules/${dto.id}`,
-				method: 'PUT',
-				body: {
-					data: dto
-				}
+				method: 'PATCH',
+				body: dto
 			}),
 			invalidatesTags: ['Module']
 		})

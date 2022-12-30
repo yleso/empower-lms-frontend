@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { login, logout } from './auth.actions'
-import AuthInitStateInterface from './auth.interface'
+import { AuthInitStateInterface } from './auth.interface'
 
 const initialState: AuthInitStateInterface = {
 	user: null,
-	jwt: '',
+	access_token: '',
 	isLoading: false
 }
 
@@ -21,18 +21,18 @@ export const authSlice = createSlice({
 			.addCase(login.fulfilled, (state, { payload }) => {
 				state.isLoading = false
 				state.user = payload.user
-				state.jwt = payload.jwt
+				state.access_token = payload.access_token
 			})
 			.addCase(login.rejected, state => {
 				state.isLoading = false
 				state.user = null
-				state.jwt = ''
+				state.access_token = ''
 			})
 			//Logout
 			.addCase(logout.fulfilled, state => {
 				state.isLoading = false
 				state.user = null
-				state.jwt = ''
+				state.access_token = ''
 			})
 	}
 })

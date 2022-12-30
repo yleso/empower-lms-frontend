@@ -1,12 +1,11 @@
-import { FC, useContext, useEffect, useState } from 'react';
-import { ThemeContext } from '@/context/theme.context';
-import { useAuth } from '@/hooks/useAuth.hook'
-import { BASE_API_URL } from '@/store/api/axios';
-import userProgressApi from '@/store/api/user-progress.api';
-import Text from '@/styles/text.module.scss';
-import Button from '../generic/buttons/primary-button/button';
-import { CourseInterface } from './course.interface';
-import Styles from './course.module.scss';
+import { FC, useEffect, useState } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
+import { BASE_API_URL } from '@/store/api/axios'
+import courseApi from '@/store/api/course.api'
+import Text from '@/styles/text.module.scss'
+import Button from '../generic/buttons/primary-button/button'
+import { CourseInterface } from './course.interface'
+import Styles from './course.module.scss'
 
 
 const Course: FC<CourseInterface> = ({
@@ -17,25 +16,15 @@ const Course: FC<CourseInterface> = ({
 	disabled
 }) => {
 	//Hooks
-	const { darkmode } = useContext(ThemeContext)
-	const { user } = useAuth()
+	const { darkmode } = useTheme()
 	const [isDisabled, setIsDisabled] = useState<boolean>(false)
+	//Set disabled mode on it change
 	useEffect(() => {
 		setIsDisabled(disabled)
 	}, [disabled])
 
 	//Api functions
-	const [createUserProgress] = userProgressApi.useCreateUserProgressMutation()
-
-	//Functions
-	const assignCourse = async () => {
-		setIsDisabled(true)
-
-		await createUserProgress({
-			users_permissions_user: user?.id || 0,
-			course: id
-		})
-	}
+	const [assignCourse] = courseApi.useAssignCourseMutation()
 
 	return (
 		<div className={`${Styles.Course} ${darkmode && Styles.CourseDark}`}>
@@ -43,11 +32,7 @@ const Course: FC<CourseInterface> = ({
 				<div className={Styles.CourseIcons}>
 					{icons &&
 						icons.map(icon => (
-							<img
-								key={icon.id}
-								src={`${BASE_API_URL}${icon.attributes.url}`}
-								alt={icon.attributes.name}
-							/>
+							<img key={icon} src={`${BASE_API_URL}${icon}`} alt={icon} />
 						))}
 				</div>
 				<h6 className={`${Styles.CourseTitle} ${Text.H6Bold}`}>{name}</h6>
@@ -57,7 +42,7 @@ const Course: FC<CourseInterface> = ({
 			</div>
 			<div className={Styles.CourseButton}>
 				<Button
-					clickFunction={assignCourse}
+					clickFunction={() => assignCourse(id)}
 					text={'Assign a course'}
 					disabled={isDisabled}
 					stroke

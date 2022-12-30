@@ -1,10 +1,10 @@
 import { combineReducers } from '@reduxjs/toolkit'
-import { authSlice } from './auth/auth.slice'
+import { themeSlice } from '@/store/theme/theme.slice'
 import api from './api/api'
-import searchApi from '@/store/api/search-api'
+import { authSlice } from './auth/auth.slice'
 
 export const rootReducer = combineReducers({
 	[api.reducerPath]: api.reducer,
-	[searchApi.reducerPath]: searchApi.reducer,
-	auth: authSlice.reducer
+	auth: authSlice.reducer,
+	theme: themeSlice.reducer
 })

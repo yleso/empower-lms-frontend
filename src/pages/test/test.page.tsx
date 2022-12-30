@@ -1,14 +1,14 @@
 import React, {
 	FC,
 	useCallback,
-	useContext,
 	useEffect,
+	useMemo,
 	useRef,
 	useState
 } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useLocation, useParams } from 'react-router-dom'
-import Page404 from '@/pages/404/404.page'
+import ErrorPage from '@/pages/error/error.page'
 import AddSectionElement from '@/components/add-section-element/add-section-element'
 import BackButton from '@/components/back-button/back-button'
 import { EditButton } from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button'
@@ -24,14 +24,12 @@ import {
 	QuestionInterface
 } from '@/components/question/question.interface'
 import Radio from '@/components/radio/radio'
-import { ThemeContext } from '@/context/theme.context'
 import { QuestionInterface as QuestionDataInterface } from '@/types/question/question.interface'
-import { useAuth } from '@/hooks/useAuth.hook'
 import { useOutside } from '@/hooks/useOutside.hook'
-import answerApi from '@/store/api/answer.api'
+import { useTheme } from '@/hooks/useTheme.hook'
+import courseApi from '@/store/api/course.api'
 import questionApi from '@/store/api/question.api'
 import testApi from '@/store/api/test.api'
-import userProgressApi from '@/store/api/user-progress.api'
 import Text from '@/styles/text.module.scss'
 import Styles from './test.module.scss'
 
@@ -39,20 +37,17 @@ import Styles from './test.module.scss'
 const TestPage: FC = () => {
 	//Team id
 	const { course_id, test_id } = useParams()
+	const courseId = Number(course_id) || 0
 	const testId = Number(test_id) || 0
 
 	//Hooks
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const { isShow, setIsShow, ref } = useOutside(false)
-	const location = useLocation()
+	const { pathname } = useLocation()
 
 	//Queries
 	//Get test data query
-	const {
-		data: testData,
-		isLoading: testLoading,
-		refetch: refetchTest
-	} = testApi.useGetTestQuery(testId)
+	const { data: test, isLoading: testLoading } = testApi.useGetTestQuery(testId)
 	//Get questions data query
 	const { data: questionsData, isLoading: questionsLoading } =
 		questionApi.useGetTestQuestionsQuery(testId)
@@ -68,19 +63,19 @@ const TestPage: FC = () => {
 	const [createQuestionApi] = questionApi.useCreateQuestionMutation()
 	//Delete question
 	const [deleteQuestionApi] = questionApi.useDeleteQuestionMutation()
-	//Edit question
-	const [editQuestionApi] = questionApi.useEditQuestionMutation()
-	//Create answer api
-	const [createAnswerApi] = answerApi.useCreateAnswerMutation()
+	//Increment question order
+	const [incrementQuestionOrderApi] =
+		questionApi.useIncrementQuestionOrderMutation()
+	//Decrement question order
+	const [decrementQuestionOrderApi] =
+		questionApi.useDecrementQuestionOrderMutation()
 
 	//Data sorting
-	//Test
-	const test = testData?.data
 	//Questions
 	const [questions, setQuestions] = useState<QuestionDataInterface[]>([])
 	//Set question list on getting data
 	useEffect(() => {
-		if (questionsData?.data) setQuestions(questionsData.data)
+		if (questionsData) setQuestions(questionsData)
 	}, [questionsLoading])
 	//End of sorting data
 
@@ -103,65 +98,23 @@ const TestPage: FC = () => {
 		async (questionType: 'input' | 'radio' | 'checkbox', name: string) => {
 			setIsShow(false)
 
-			const order = questions.length + 1
-
 			const questionData = {
 				name,
 				test: testId,
-				type: questionType,
-				order
-			}
-
-			//Check if new question type is text answer and do specific actions
-			if (questionType === 'input') {
-				await createQuestionApi(questionData).then(async response => {
-					//Get new question from response
-					//@ts-ignore
-					const newQuestion = response.data.data
-					//Create new empty answer
-					await createAnswerApi({ question: newQuestion.id }).then(response => {
-						//Get new question from response
-						//@ts-ignore
-						const answer = response.data.data
-						//Format new question object and add answer to it
-						const newQuestionWithAnswer = {
-							id: newQuestion.id,
-							attributes: {
-								...newQuestion.attributes,
-								answers: {
-									data: [answer]
-								}
-							}
-						}
-						//Add new question to questions list
-						setQuestions(currentQuestionsList => {
-							return [...currentQuestionsList, newQuestionWithAnswer]
-						})
-					})
-				})
-
-				return
+				type: questionType
 			}
 
 			await createQuestionApi(questionData).then(response => {
 				//Get new question from response
 				//@ts-ignore
-				const newQuestion = response.data.data
+				const newQuestion = response.data
 				//Add new question to questions list
-				setQuestions(currentQuestionsList => {
-					return [
-						...currentQuestionsList,
-						{
-							id: newQuestion.id,
-							attributes: {
-								...newQuestion.attributes,
-								answers: {
-									data: []
-								}
-							}
-						}
-					]
-				})
+				setQuestions(
+					//@ts-ignore
+					currentQuestionsList => {
+						return [...currentQuestionsList, newQuestion]
+					}
+				)
 			})
 		},
 		[questions]
@@ -172,22 +125,7 @@ const TestPage: FC = () => {
 			return currentQuestionList.filter(question => question.id !== questionId)
 		})
 
-		const questionOrder = questions.filter(
-			question => question.id === questionId
-		)[0].attributes.order
-
-		const questionsWithBiggerOrder = questions.filter(
-			question => question.attributes.order > questionOrder
-		)
-
 		await deleteQuestionApi(questionId)
-
-		for (const question of questionsWithBiggerOrder) {
-			await editQuestionApi({
-				id: question.id,
-				order: question.attributes.order - 1
-			})
-		}
 	}
 
 	//Change order
@@ -198,13 +136,19 @@ const TestPage: FC = () => {
 				question => question.id === questionId
 			)[0]
 
+			if (!increase) {
+				await incrementQuestionOrderApi(currentQuestion.id)
+			} else {
+				await decrementQuestionOrderApi(currentQuestion.id)
+			}
+
 			//Orders
-			const currentOrder: number = currentQuestion.attributes.order
+			const currentOrder: number = currentQuestion.order
 			const newOrder: number = increase ? currentOrder - 1 : currentOrder + 1
 
 			//@ts-ignore
 			const previousQuestion = questions.filter(
-				question => question.attributes.order === newOrder
+				question => question.order === newOrder
 			)[0]
 
 			//Check for first and last
@@ -213,50 +157,30 @@ const TestPage: FC = () => {
 			//Check if question is already last in list
 			if (questions.length < newOrder) return
 
-			//Change question order
-			await editQuestionApi({
-				id: questionId,
-				order: newOrder
-			})
-
-			//Change previous question with the same order
-			if (previousQuestion) {
-				await editQuestionApi({
-					id: previousQuestion.id,
-					order: currentOrder
-				})
+			const formatedCurrentQuestion = { ...currentQuestion, order: newOrder }
+			const formatedPreviousQuestion = {
+				...previousQuestion,
+				order: currentOrder
 			}
 
 			//Reset questions order
-			setQuestions(currentQuestionList => {
-				//Get not mutable questions
-				const notMutable = currentQuestionList.filter(
-					question =>
-						question.attributes.order !== currentOrder &&
-						question.attributes.order !== newOrder
-				)
+			setQuestions(
+				//@ts-ignore
+				currentQuestionList => {
+					//Get not mutable questions
+					const notMutable = currentQuestionList.filter(
+						question =>
+							question.order !== currentOrder && question.order !== newOrder
+					)
 
-				//Get current question with new order
-				const currentSortedQuestion = {
-					id: currentQuestion.id,
-					attributes: {
-						...currentQuestion.attributes,
-						order: newOrder
-					}
+					//Return sorted question list
+					return [
+						...notMutable,
+						formatedCurrentQuestion,
+						formatedPreviousQuestion
+					]
 				}
-
-				//Get previous question with current order
-				const previousSortedQuestion = {
-					id: previousQuestion.id,
-					attributes: {
-						...previousQuestion.attributes,
-						order: currentOrder
-					}
-				}
-
-				//Return sorted question list
-				return [...notMutable, currentSortedQuestion, previousSortedQuestion]
-			})
+			)
 		},
 		[questions]
 	)
@@ -273,11 +197,11 @@ const TestPage: FC = () => {
 		}
 
 		//Lesson editing
-		if (currentTestName !== test?.attributes.name) {
+		if (currentTestName !== test?.name) {
 			await editTestApi({
 				id: testId,
 				name: currentTestName
-			}).then(() => refetchTest())
+			})
 		}
 	}
 
@@ -287,20 +211,17 @@ const TestPage: FC = () => {
 
 		let answers: AnswerInterface[] = []
 
-		question.attributes.answers.data.forEach(answer => {
+		question.answers.forEach(answer => {
 			answers.push({
 				id: answer.id,
-				name: answer.attributes.name,
-				right: answer.attributes.right
+				name: answer.name,
+				right: answer.right
 			})
 		})
 
 		return {
-			id: question.id,
+			...question,
 			totalQuestions: questions.length,
-			order: question.attributes.order,
-			type: question.attributes.type,
-			name: question.attributes.name,
 			answers
 		}
 	}
@@ -322,44 +243,31 @@ const TestPage: FC = () => {
 	}
 
 	//LEARNING PART
+
 	//Hooks
-	const { user } = useAuth()
 	//Check if user is on the learning page
-	const isLearningPage = location.pathname.startsWith('/my-learning')
+	const isLearningPage = pathname.startsWith('/my-learning')
 	//Get current progress from api
-	const { data: progressData } =
-		userProgressApi.useGetProgressByCourseAndUserQuery({
-			userId: user?.id || 0,
-			courseId: Number(course_id)
-		})
-	//Get current progress from data
-	const progress = progressData?.data[0]
-	//Get passed questions from api
-	const { data: userPassedQuestionsData } =
-		userProgressApi.useGetPassedTestQuestionsQuery({
-			testId,
-			progressId: progress?.id || 0
-		})
-	const userPassedQuestions = userPassedQuestionsData?.data
-	//Array with all already passed user tests from this course
-	//Get function
-	const getUserPassedTests = () => {
+	const { data: progress, isFetching: progressFetching } =
+		courseApi.useGetCourseProgressQuery(courseId)
+	//Get passed questions
+	const userPassedQuestions = progress?.passed_questions
+	//User passed tests ids
+	const userPassedTestsIds = useMemo(() => {
 		//Empty array
 		let passedTests: number[] = []
 		//Algorithm
 		if (progress) {
-			for (const test of progress.attributes.tests.data) {
+			for (const test of progress.passed_tests) {
 				passedTests.push(test.id)
 			}
 		}
 
 		return passedTests
-	}
-	//Array with ids
-	const userPassedTestsIds = getUserPassedTests()
+	}, [progressFetching])
 	//Array with all already passed user questions from this course
 	//Get function
-	const getUserPassedQuestions = () => {
+	const userPassedQuestionsIds = useMemo(() => {
 		//Empty array
 		let passedTests: number[] = []
 		//Algorithm
@@ -370,9 +278,7 @@ const TestPage: FC = () => {
 		}
 
 		return passedTests
-	}
-	//Array with ids
-	const userPassedQuestionsIds = getUserPassedQuestions()
+	}, [progressFetching])
 
 	//END OF LEARNING PART
 
@@ -380,11 +286,11 @@ const TestPage: FC = () => {
 	//Loader
 	if (testLoading || questionsLoading) return <Loader />
 	//No data case
-	if (!test) return <Page404 />
+	if (!test) return <ErrorPage error={404} />
 
 	return (
 		<>
-			<Popup isOpened={isShow} setIsOpened={setIsShow} popupRef={ref}>
+			<Popup isOpened={isShow} setIsOpened={setIsShow} reference={ref}>
 				<form
 					className={`${Styles.CreateQuestionForm} ${
 						darkmode && Styles.CreateQuestionFormDark
@@ -431,7 +337,7 @@ const TestPage: FC = () => {
 					<div className={Styles.HeaderLeftSide}>
 						{edit && <LargeDeleteButton deleteFunction={deleteTest} />}
 						<EditableTitle
-							text={test?.attributes.name}
+							text={test?.name}
 							editState={edit}
 							reference={testNameRef}
 						/>
@@ -442,13 +348,8 @@ const TestPage: FC = () => {
 				</div>
 				{questions &&
 					questions.map(question => (
-						<article
-							style={{ order: question.attributes.order }}
-							key={question.id}
-						>
+						<article style={{ order: question.order }} key={question.id}>
 							<Question
-								testId={testId}
-								questionTestId={testId}
 								userProgress={{
 									id: progress?.id || 0,
 									questions: userPassedQuestionsIds,

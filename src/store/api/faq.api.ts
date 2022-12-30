@@ -1,19 +1,14 @@
 import { CreateFaqDto } from '@/types/faq/create-faq.dto'
+import { FaqInterface, FaqWithTeamInterface } from '@/types/faq/faq.interface'
 import { UpdateFaqDto } from '@/types/faq/update-faq.dto'
-import FaqInterface from '../../types/faq/faq.interface'
 import api from './api'
 
 
 const faqApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get team faqs
-		getTeamFaqs: builder.query<
-			{
-				data: Array<FaqInterface>
-			},
-			number
-		>({
-			query: teamId => `faqs?filters[team]=${teamId}`,
+		getTeamFaqs: builder.query<FaqInterface[], number>({
+			query: teamId => `faqs/team/${teamId}`,
 			providesTags: () => [{ type: 'FAQ' }]
 		}),
 		//Create faq question
@@ -21,9 +16,7 @@ const faqApi = api.injectEndpoints({
 			query: dto => ({
 				url: 'faqs/',
 				method: 'POST',
-				body: {
-					data: dto
-				}
+				body: dto
 			}),
 			invalidatesTags: ['FAQ']
 		}),
@@ -31,10 +24,8 @@ const faqApi = api.injectEndpoints({
 		editFaq: builder.mutation<FaqInterface, UpdateFaqDto>({
 			query: dto => ({
 				url: `faqs/${dto.id}`,
-				method: 'PUT',
-				body: {
-					data: dto
-				}
+				method: 'PATCH',
+				body: dto
 			}),
 			invalidatesTags: ['FAQ']
 		}),
@@ -45,6 +36,14 @@ const faqApi = api.injectEndpoints({
 				method: 'DELETE'
 			}),
 			invalidatesTags: ['FAQ']
+		}),
+		//Search faqs
+		searchFaqs: builder.mutation<FaqWithTeamInterface[], string>({
+			query: query => ({
+				url: `faqs/search/${query}`,
+				method: 'POST'
+			}),
+			invalidatesTags: ['Search']
 		})
 	})
 })

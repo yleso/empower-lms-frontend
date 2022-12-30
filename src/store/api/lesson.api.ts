@@ -7,33 +7,21 @@ import api from '@/store/api/api'
 const lessonApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get Course
-		getLesson: builder.query<{ data: LessonInterface }, number>({
+		getLesson: builder.query<LessonInterface, number>({
 			query: courseId => `lessons/${courseId}`,
 			providesTags: () => [{ type: 'Lesson' }]
 		}),
 		//Create Lesson
-		createLesson: builder.mutation<
-			{
-				data: LessonInterface
-			},
-			CreateLessonDto
-		>({
+		createLesson: builder.mutation<LessonInterface, CreateLessonDto>({
 			query: dto => ({
 				url: 'lessons/',
 				method: 'POST',
-				body: {
-					data: dto
-				}
+				body: dto
 			}),
 			invalidatesTags: ['Lesson']
 		}),
 		//Delete Lesson
-		deleteLesson: builder.mutation<
-			{
-				data: LessonInterface
-			},
-			number
-		>({
+		deleteLesson: builder.mutation<LessonInterface, number>({
 			query: lessonId => ({
 				url: `lessons/${lessonId}`,
 				method: 'DELETE'
@@ -41,20 +29,21 @@ const lessonApi = api.injectEndpoints({
 			invalidatesTags: ['Lesson']
 		}),
 		//Edit Lesson
-		editLesson: builder.mutation<
-			{
-				data: LessonInterface
-			},
-			UpdateLessonDto
-		>({
+		editLesson: builder.mutation<LessonInterface, UpdateLessonDto>({
 			query: dto => ({
 				url: `lessons/${dto.id}`,
-				method: 'PUT',
-				body: {
-					data: dto
-				}
+				method: 'PATCH',
+				body: dto
 			}),
 			invalidatesTags: ['Lesson']
+		}),
+		//Pass lesson
+		passLesson: builder.mutation<null, number>({
+			query: lessonId => ({
+				url: `lessons/pass/${lessonId}`,
+				method: 'POST'
+			}),
+			invalidatesTags: ['User Progress']
 		})
 	})
 })

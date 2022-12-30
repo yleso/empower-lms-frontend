@@ -1,7 +1,7 @@
-import { FC, Fragment, useContext, useMemo } from 'react'
+import { FC, Fragment, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import Page404 from '@/pages/404/404.page'
 import { tableHeaders } from '@/pages/admin-panel/table-headers'
+import ErrorPage from '@/pages/error/error.page'
 import { AddButton } from '@/generic/buttons/admin-buttons/big-buttons/admin-button'
 import SmallDeleteButton from '@/generic/buttons/delete-buttons/small-delete-button/small-delete-button'
 import { OptionInterface } from '@/generic/select/select.interface'
@@ -9,10 +9,10 @@ import Avatar from '@/components/avatar/avatar'
 import CreateTeammatePopup from '@/components/create-teammate-popup/create-teammate-popup'
 import Title from '@/components/generic/title/title'
 import Loader from '@/components/loader/loader'
-import { ThemeContext } from '@/context/theme.context'
 import { useAuth } from '@/hooks/useAuth.hook'
-import { useGetAuthRole } from '@/hooks/useGetAuthRole.hook'
 import { useOutside } from '@/hooks/useOutside.hook'
+import { useTheme } from '@/hooks/useTheme.hook'
+import { BASE_API_URL } from '@/store/api/axios'
 import employeeApi from '@/store/api/employee.api'
 import roleApi from '@/store/api/role.api'
 import teamApi from '@/store/api/team.api'
@@ -22,8 +22,7 @@ import Styles from './admin-panel.module.scss'
 
 const AdminPanelPage: FC = () => {
 	//Hooks
-	const { darkmode } = useContext(ThemeContext)
-	const { userRole, isLoading } = useGetAuthRole()
+	const { darkmode } = useTheme()
 	const { user: authUser } = useAuth()
 
 	//User data
@@ -38,10 +37,8 @@ const AdminPanelPage: FC = () => {
 
 	//Teams
 	//Fetch teams
-	const { data: teamsData, isFetching: teamsFetching } =
+	const { data: teams, isFetching: teamsFetching } =
 		teamApi.useGetAllTeamsQuery(null)
-	//Teams
-	const teams = teamsData?.data
 
 	//Array with teams for popup
 	const teamsArray = useMemo(() => {
@@ -52,7 +49,7 @@ const AdminPanelPage: FC = () => {
 			for (const team of teams) {
 				teamsArray.push({
 					value: team.id,
-					text: team.attributes.name
+					text: team.name
 				})
 			}
 		}
@@ -62,10 +59,8 @@ const AdminPanelPage: FC = () => {
 
 	//Roles
 	//Fetch roles
-	const { data: rolesData, isLoading: rolesLoading } =
+	const { data: roles, isLoading: rolesLoading } =
 		roleApi.useGetAllRolesQuery(null)
-	//Teams
-	const roles = rolesData?.roles.filter(role => role.type !== 'public')
 
 	//Edit user functions
 	//Edit user team api function
@@ -76,15 +71,15 @@ const AdminPanelPage: FC = () => {
 	//Popup state hook
 	const { isShow, setIsShow, ref } = useOutside(false)
 
-	if (isLoading || usersLoading || rolesLoading) return <Loader />
-	if (userRole?.type !== 'administrator') return <Page404 />
+	if (usersLoading || rolesLoading) return <Loader />
+	if (authUser?.access_level !== 4) return <ErrorPage error={403} />
 
 	return (
 		<>
 			<CreateTeammatePopup
-				popupShow={isShow}
-				setPopupShow={setIsShow}
-				popupRef={ref}
+				isShow={isShow}
+				setIsShow={setIsShow}
+				reference={ref}
 				teams={teamsArray}
 			/>
 			<div className={Styles.Header}>
@@ -109,6 +104,7 @@ const AdminPanelPage: FC = () => {
 									<li className={`${Text.H6Regular} ${Styles.TableCell}`}>
 										<div className={Styles.CellControls}>
 											<SmallDeleteButton
+												disabled={user.id === authUser?.id}
 												deleteFunction={() => deleteUser(user.id)}
 											/>
 										</div>
@@ -116,11 +112,9 @@ const AdminPanelPage: FC = () => {
 									<li className={`${Text.H6Regular} ${Styles.TableCell}`}>
 										<Link to={`/employee/${user.id}`}>
 											<div className={Styles.UserAvatar}>
-												{user.avatar && (
+												{user.avatar_path && (
 													<Avatar
-														avatarPath={`${import.meta.env.VITE_API_URL}${
-															user.avatar.formats.thumbnail.url
-														}`}
+														avatarPath={`${BASE_API_URL}${user.avatar_path}`}
 														alt={`${user.name} ${user.surname}`}
 														height={'32px'}
 														width={'32px'}
@@ -144,7 +138,7 @@ const AdminPanelPage: FC = () => {
 									<li className={`${Text.H6Regular} ${Styles.TableCell}`}>
 										<select
 											className={`${Text.H6Regular} ${Styles.TeamSelect}`}
-											defaultValue={user?.team ? user?.team?.id : 0}
+											value={user.team.id}
 											onChange={event => {
 												editUserTeam({
 													userId: user.id,
@@ -152,11 +146,10 @@ const AdminPanelPage: FC = () => {
 												})
 											}}
 										>
-											<option value={0}>No team</option>
 											{teams &&
 												teams.map(team => (
 													<option key={team.id} value={team.id}>
-														{team.attributes.name}
+														{team.name}
 													</option>
 												))}
 										</select>
@@ -171,7 +164,7 @@ const AdminPanelPage: FC = () => {
 										<select
 											disabled={user.id === authUser?.id}
 											className={`${Text.H6Regular} ${Styles.TeamSelect}`}
-											defaultValue={user?.role?.id}
+											defaultValue={user?.role?.access_level}
 											onChange={event => {
 												editUserRole({
 													userId: user.id,
@@ -181,7 +174,10 @@ const AdminPanelPage: FC = () => {
 										>
 											{roles &&
 												roles.map(role => (
-													<option key={role.id} value={role.id}>
+													<option
+														key={role.access_level}
+														value={role.access_level}
+													>
 														{role.name}
 													</option>
 												))}

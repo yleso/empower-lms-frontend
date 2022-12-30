@@ -1,12 +1,12 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import { Plus } from 'tabler-icons-react'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import Styles from './create-department.module.scss'
 
 
 const CreateDepartment: FC = () => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<button type={'button'}>

@@ -1,12 +1,13 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, useContext } from 'react'
+import { FC } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '../../styles/text.module.scss'
 import Avatar from '../avatar/avatar'
 import TeammateInterface from './teammate.interface'
 import Styles from './teammate.module.scss'
 
+
 const Teammate: FC<TeammateInterface> = employee => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<div className={`${Styles.Teammate} ${darkmode && Styles.TeammateDark}`}>

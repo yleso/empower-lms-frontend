@@ -1,6 +1,6 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import { CircularProgressbar } from 'react-circular-progressbar'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import { AssignedCourseInterface } from './assigned-course.interface'
@@ -8,7 +8,7 @@ import Styles from './assigned-course.module.scss'
 
 
 const AssignedCourseMini: FC<AssignedCourseInterface> = course => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	const progress: number = Math.round(course.progress)
 

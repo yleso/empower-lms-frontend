@@ -1,6 +1,7 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import { CircularProgressbar } from 'react-circular-progressbar'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
+import { BASE_API_URL } from '@/store/api/axios'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import { AssignedCourseInterface } from './assigned-course.interface'
@@ -17,7 +18,7 @@ const AssignedCourse: FC<AssignedCourseInterface> = ({
 	tests,
 	totalProgress
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	const progress: number =
 		totalProgress > 99 && totalProgress !== 100 ? 99 : Math.round(totalProgress)
@@ -29,11 +30,7 @@ const AssignedCourse: FC<AssignedCourseInterface> = ({
 				<div className={Styles.CourseInfo}>
 					<div className={Styles.CourseIcons}>
 						{icons.map(icon => (
-							<img
-								key={icon.url}
-								src={`${import.meta.env.VITE_API_URL}${icon.url}`}
-								alt={icon.name}
-							/>
+							<img key={icon} src={`${BASE_API_URL}${icon}`} alt={icon} />
 						))}
 					</div>
 					<h3 className={`${Text.TitleBold} ${Styles.CourseName}`}>{name}</h3>
@@ -42,13 +39,13 @@ const AssignedCourse: FC<AssignedCourseInterface> = ({
 					</p>
 				</div>
 				<div className={Styles.CourseResults}>
-					{/*<div className={`${Styles.CourseResult} ${Text.H6Regular}`}>*/}
-					{/*	<span className={`${Styles.ResultGot} ${Text.H6Bold}`}>*/}
-					{/*		{modules.got}*/}
-					{/*	</span>*/}
-					{/*	<span className={Styles.ResultTotal}>/{modules.total}</span>*/}
-					{/*	<span className={Styles.ResultName}>&nbsp;Modules</span>*/}
-					{/*</div>*/}
+					<div className={`${Styles.CourseResult} ${Text.H6Regular}`}>
+						<span className={`${Styles.ResultGot} ${Text.H6Bold}`}>
+							{modules.got}
+						</span>
+						<span className={Styles.ResultTotal}>/{modules.total}</span>
+						<span className={Styles.ResultName}>&nbsp;Modules</span>
+					</div>
 					<div className={`${Styles.CourseResult} ${Text.H6Regular}`}>
 						<span className={`${Styles.ResultGot} ${Text.H6Bold}`}>
 							{lessons.got}

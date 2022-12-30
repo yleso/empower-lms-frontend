@@ -1,9 +1,9 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, useContext } from 'react'
+import { FC } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Styles from './divider.module.scss'
 
 const Divider: FC = () => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<div className={`${Styles.Divider} ${darkmode && Styles.DividerDark}`} />

@@ -1,5 +1,5 @@
-import { FC, PropsWithChildren, useContext, useEffect } from 'react'
-import { ThemeContext } from '@/context/theme.context'
+import { FC, PropsWithChildren, useEffect } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
 import { PopupInterface } from './popup.interface'
 import Styles from './popup.module.scss'
 
@@ -7,10 +7,10 @@ import Styles from './popup.module.scss'
 const Popup: FC<PropsWithChildren<PopupInterface>> = ({
 	isOpened,
 	setIsOpened,
-	popupRef,
+	reference,
 	children
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleClose, false)
@@ -30,7 +30,7 @@ const Popup: FC<PropsWithChildren<PopupInterface>> = ({
 		<>
 			{isOpened && (
 				<div className={`${Styles.Popup} ${darkmode && Styles.PopupDark}`}>
-					<div className={`${Styles.PopupContent}`} ref={popupRef}>
+					<div className={`${Styles.PopupContent}`} ref={reference}>
 						{children}
 					</div>
 				</div>

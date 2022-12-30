@@ -1,7 +1,7 @@
-import React, { FC, useContext } from 'react'
+import React, { FC } from 'react'
 import { Plus } from 'tabler-icons-react'
 import { WordInterface } from '@/components/word/word.interface'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import Styles from './word.module.scss'
 
@@ -13,7 +13,7 @@ const Word: FC<WordInterface> = ({
 	editState,
 	deleteFunction
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<li className={`${Styles.Word} ${darkmode && Styles.WordDark}`}>

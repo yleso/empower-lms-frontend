@@ -1,5 +1,5 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, useContext } from 'react'
+import { FC } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
 import { BASE_API_URL } from '@/store/api/axios'
 import Text from '../../styles/text.module.scss'
 import Button from '../generic/buttons/primary-button/button'
@@ -8,7 +8,7 @@ import Styles from './material.module.scss'
 
 
 const Material: FC<MaterialInterface> = material => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<div className={`${Styles.Material} ${darkmode && Styles.MaterialDark}`}>

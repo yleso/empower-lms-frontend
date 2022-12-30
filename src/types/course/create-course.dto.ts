@@ -1,5 +1,5 @@
 export interface CreateCourseDto {
-	name?: string
-	description?: string
-	team?: number
+	name: string
+	description: string
+	team: number
 }

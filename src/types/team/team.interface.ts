@@ -1,6 +1,5 @@
-export interface TeamInterface {
-	id: number
-	attributes: {
-		name: string
-	}
+import { BaseInterface } from '@/types/base.interface'
+
+export interface TeamInterface extends BaseInterface {
+	name: string
 }

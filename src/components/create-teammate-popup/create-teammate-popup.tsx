@@ -1,12 +1,10 @@
-import emailjs from '@emailjs/browser'
-import { FC, useContext, useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import Select from '@/generic/select/select'
 import Button from '@/components/generic/buttons/primary-button/button'
 import Field from '@/components/generic/field/field'
 import Popup from '@/components/popup/popup'
-import { ThemeContext } from '@/context/theme.context'
-import { GeneratePassword } from '@/utils/password-generator.util'
+import { useTheme } from '@/hooks/useTheme.hook'
 import employeeApi from '@/store/api/employee.api'
 import Text from '@/styles/text.module.scss'
 import { CreateTeammateFormInterface } from './create-teammate-form.interface'
@@ -16,14 +14,14 @@ import TeammateFields from './employee.fields'
 
 
 const CreateTeammatePopup: FC<CreateTeammatePopupInterface> = ({
-	popupShow,
-	setPopupShow,
-	popupRef,
+	isShow,
+	setIsShow,
+	reference,
 	teams
 }) => {
 	//Hooks
 	//Theme hook
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	//Error hook
 	const [error, setError] = useState<string>()
 
@@ -31,22 +29,9 @@ const CreateTeammatePopup: FC<CreateTeammatePopupInterface> = ({
 	useEffect(() => {
 		setError(undefined)
 		reset()
-	}, [popupShow])
+	}, [isShow])
 
 	const [createUserApi] = employeeApi.useCreateEmployeeMutation()
-
-	const sendEmail = async (name: string, email: string, password: string) => {
-		await emailjs.send(
-			import.meta.env.VITE_EMAIL_SERVICE_ID,
-			import.meta.env.VITE_EMAIL_TEMPLATE_ID,
-			{
-				user_name: name,
-				user_email: email,
-				user_password: password
-			},
-			import.meta.env.VITE_EMAIL_PUBLIC_KEY
-		)
-	}
 
 	const { register, handleSubmit, reset } =
 		useForm<CreateTeammateFormInterface>({
@@ -56,32 +41,29 @@ const CreateTeammatePopup: FC<CreateTeammatePopupInterface> = ({
 	const onSubmit: SubmitHandler<CreateTeammateFormInterface> = async data => {
 		const userData = {
 			...data,
-			phone: data.phone ? data.phone : undefined,
-			username: data.email,
-			password: GeneratePassword(12)
+			role: 1,
+			team: +data.team,
+			phone_number: data.phone_number ? data.phone_number : undefined
 		}
 
 		await createUserApi(userData).then(async response => {
 			//Get error from response
 			//@ts-ignore
-			const error = response?.error?.data?.error
+			const error = response?.error
 			//If email is already registered
 			if (error) {
-				if (error.message === 'Email already taken') {
-					return setError('Employee with this email is already exist')
-				} else {
-					return setError('Employee with this phone is already exist')
-				}
+				//Get error message
+				const errorMessage = error?.data.message
+				//Set error and exist the function
+				return setError(errorMessage)
 			}
 			//Close popup
-			setPopupShow(false)
-			//Send email with login and password to new employee
-			await sendEmail(userData.name, userData.email, userData.password)
+			setIsShow(false)
 		})
 	}
 
 	return (
-		<Popup isOpened={popupShow} setIsOpened={setPopupShow} popupRef={popupRef}>
+		<Popup isOpened={isShow} setIsOpened={setIsShow} reference={reference}>
 			<div className={`${darkmode && Styles.ContentDark} ${Styles.Content}`}>
 				<form
 					className={`${Styles.PopupForm}`}

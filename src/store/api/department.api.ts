@@ -5,41 +5,27 @@ import api from './api'
 const departmentApi = api.injectEndpoints({
 	endpoints: builder => ({
 		// Get Department Children
-		getChildDepartments: builder.query<
-			{
-				data: DepartmentsInterface[]
-			},
-			number | null
-		>({
+		getChildDepartments: builder.query<DepartmentsInterface[], number | null>({
 			query: departmentId =>
-				`departments?filters[department]${
-					departmentId === null ? '' : `=${departmentId}`
+				`departments/${
+					departmentId === null ? 'main' : `department/${departmentId}`
 				}`,
 			providesTags: () => [{ type: 'Department' }]
 		}),
 		//Get Department Teams
-		getDepartmentTeams: builder.query<
-			{
-				data: DepartmentsInterface[]
-			},
-			number
-		>({
-			query: departmentId => `teams?filters[department]=${departmentId}`,
+		getDepartmentTeams: builder.query<DepartmentsInterface[], number>({
+			query: departmentId => `teams/department/${departmentId}`,
 			providesTags: () => [{ type: 'Team' }]
 		}),
 		//Create New Answer
 		createDepartment: builder.mutation<
-			{
-				data: DepartmentsInterface
-			},
+			DepartmentsInterface,
 			CreateDepartmentDto
 		>({
 			query: dto => ({
 				url: 'departments/',
 				method: 'POST',
-				body: {
-					data: dto
-				}
+				body: dto
 			}),
 			invalidatesTags: ['Department']
 		})

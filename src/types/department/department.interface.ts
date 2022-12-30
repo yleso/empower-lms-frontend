@@ -1,6 +1,5 @@
-export interface DepartmentsInterface {
-	id: number
-	attributes: {
-		name: string
-	}
+import { BaseInterface } from '@/types/base.interface'
+
+export interface DepartmentsInterface extends BaseInterface {
+	name: string
 }

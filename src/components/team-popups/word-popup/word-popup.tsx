@@ -1,31 +1,26 @@
-import React, { FC, useContext } from 'react'
+import React, { FC } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import Button from '@/components/generic/buttons/primary-button/button'
 import Field from '@/components/generic/field/field'
 import Popup from '@/components/popup/popup'
 import { PopupInterface } from '@/components/team-popups/popup.interface'
-import { ThemeContext } from '@/context/theme.context'
 import { CreateWordDto } from '@/types/word/create-word.dto'
+import { useTheme } from '@/hooks/useTheme.hook'
 import wordApi from '@/store/api/word.api'
 import Text from '@/styles/text.module.scss'
 import Styles from '../faq-popup/faq-popup.module.scss'
 
 
-const WordPopup: FC<PopupInterface> = ({
-	popupShow,
-	setPopupShow,
-	popupRef,
-	setValue
-}) => {
-	const { darkmode } = useContext(ThemeContext)
+const WordPopup: FC<PopupInterface> = ({ isShow, setIsShow, reference }) => {
+	const { darkmode } = useTheme()
 	const { team_id: teamId } = useParams()
 
-	const { register, handleSubmit } = useForm<CreateWordDto>({
+	const { register, handleSubmit, reset } = useForm<CreateWordDto>({
 		mode: 'onChange'
 	})
 
-	const [addWord] = wordApi.useCreateWordMutation()
+	const [createWordApi] = wordApi.useCreateWordMutation()
 
 	const onSubmit: SubmitHandler<CreateWordDto> = async data => {
 		const wordData = {
@@ -33,19 +28,13 @@ const WordPopup: FC<PopupInterface> = ({
 			team: Number(teamId)
 		}
 
-		setPopupShow(false)
-		await addWord(wordData).then(response => {
-			//Get new word from response
-			//@ts-ignore
-			const newWord = response.data.data
-			//Add new word to current list
-			//@ts-ignore
-			setValue(currentWords => [...currentWords, newWord])
-		})
+		setIsShow(false)
+		await createWordApi(wordData)
+		reset()
 	}
 
 	return (
-		<Popup isOpened={popupShow} setIsOpened={setPopupShow} popupRef={popupRef}>
+		<Popup isOpened={isShow} setIsOpened={setIsShow} reference={reference}>
 			<form
 				className={`${Styles.Content} ${darkmode && Styles.ContentDark}`}
 				onSubmit={handleSubmit(onSubmit)}

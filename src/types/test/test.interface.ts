@@ -1,6 +1,5 @@
-export interface TestInterface {
-	id: number
-	attributes: {
-		name: string
-	}
+import { BaseInterface } from '@/types/base.interface'
+
+export interface TestInterface extends BaseInterface {
+	name: string
 }

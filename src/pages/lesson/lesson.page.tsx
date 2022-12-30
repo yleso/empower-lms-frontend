@@ -1,44 +1,45 @@
-import { FC, useContext, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Page404 from '@/pages/404/404.page';
-import Button from '@/generic/buttons/primary-button/button';
-import BackButton from '@/components/back-button/back-button';
-import { EditButton } from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button';
-import LargeDeleteButton from '@/components/generic/buttons/delete-buttons/large-delete-button/large-delete-button';
-import EditableTitle from '@/components/generic/editable-title/editable-title';
-import LessonEditor from '@/components/lesson-editor/lesson-editor';
-import Loader from '@/components/loader/loader';
-import { ThemeContext } from '@/context/theme.context'
-import { useAuth } from '@/hooks/useAuth.hook'
-import lessonApi from '@/store/api/lesson.api';
-import userProgressApi from '@/store/api/user-progress.api';
-import Styles from './lesson.module.scss';
+import { FC, useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import ErrorPage from '@/pages/error/error.page'
+import Button from '@/generic/buttons/primary-button/button'
+import BackButton from '@/components/back-button/back-button'
+import { EditButton } from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button'
+import LargeDeleteButton from '@/components/generic/buttons/delete-buttons/large-delete-button/large-delete-button'
+import EditableTitle from '@/components/generic/editable-title/editable-title'
+import LessonEditor from '@/components/lesson-editor/lesson-editor'
+import Loader from '@/components/loader/loader'
+import { useTheme } from '@/hooks/useTheme.hook'
+import courseApi from '@/store/api/course.api'
+import lessonApi from '@/store/api/lesson.api'
+import Styles from './lesson.module.scss'
 
 
 const LessonPage: FC = () => {
 	//Hooks
 	const [edit, setEdit] = useState(false)
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const { course_id, lesson_id } = useParams()
 	const lessonId = Number(lesson_id) || 0
-	const location = useLocation()
+	const courseId = Number(course_id) || 0
+	const { pathname } = useLocation()
 	const navigate = useNavigate()
 
 	//Api functions
 	const {
-		data: lessonData,
+		data: lesson,
 		refetch: refetchLesson,
 		isLoading,
 		isFetching
 	} = lessonApi.useGetLessonQuery(lessonId)
 	const [editLessonApi] = lessonApi.useEditLessonMutation()
 	const [deleteLessonApi] = lessonApi.useDeleteLessonMutation()
-	const lesson = lessonData?.data
 
 	const lessonNameRef = useRef<HTMLHeadingElement>(null)
 
 	const deleteLesson = async () => {
-		await deleteLessonApi(lessonId).then(() => history.back())
+		await deleteLessonApi(lessonId).then(() =>
+			navigate(`/my-learning/course/${courseId}`)
+		)
 	}
 
 	const toggleEdit = async () => {
@@ -55,8 +56,8 @@ const LessonPage: FC = () => {
 
 		//Lesson editing
 		if (
-			currentLessonName !== lesson?.attributes.name ||
-			currentLessonContent !== lesson?.attributes.content
+			currentLessonName !== lesson?.name ||
+			currentLessonContent !== lesson?.content
 		) {
 			await editLessonApi({
 				id: lessonId,
@@ -69,56 +70,43 @@ const LessonPage: FC = () => {
 	const [lessonContent, setLessonContent] = useState<string>('')
 
 	useEffect(() => {
-		setLessonContent(lesson?.attributes.content)
+		setLessonContent(lesson?.content || '')
 	}, [isFetching])
 
 	//LEARNING PART
 	//Check if user is on the learning page
-	const isLearningPage = location.pathname.startsWith('/my-learning')
+	const isLearningPage = pathname.startsWith('/my-learning')
 	//Hooks
-	const { user } = useAuth()
 	//Get current progress from api
-	const { data: progressData } =
-		userProgressApi.useGetProgressByCourseAndUserQuery({
-			userId: user?.id || 0,
-			courseId: Number(course_id)
-		})
-	//Get current progress from data
-	const progress = progressData?.data[0]
+	const { data: progress } = courseApi.useGetCourseProgressQuery(courseId)
 	///Edit progress api function
-	const [editUserProgressApi] = userProgressApi.useEditUserProgressMutation()
+	const [passLessonApi] = lessonApi.usePassLessonMutation()
 	//Array with all already passed user lessons from this course
-	//Get function
-	const getUserPassedLessons = () => {
+	const userPassedLessonsIds = useMemo(() => {
 		//Empty array
 		let passedLessons: number[] = []
 		//Algorithm
 		if (progress) {
-			for (const lesson of progress.attributes.lessons.data) {
+			for (const lesson of progress.passed_lessons) {
 				passedLessons.push(lesson.id)
 			}
 		}
 
 		return passedLessons
-	}
-	//Array with ids
-	const userPassedLessonsIds = getUserPassedLessons()
+	}, [])
 	//Make lesson passed
-	const markLessonAsRead = async () => {
+	const passLesson = async () => {
 		//Edit user progress
-		await editUserProgressApi({
-			id: progress?.id || 0,
-			lessons: [...userPassedLessonsIds, lessonId]
-		}).then(() => {
+		await passLessonApi(lessonId).then(() => {
 			//Navigate back to the course page
-			navigate(`/my-learning/course/${course_id}`)
+			navigate(`/my-learning/course/${courseId}`)
 		})
 	}
 
 	//END OF LEARNING PART
 
-	if (isLoading || isFetching) return <Loader />
-	if (!lesson) return <Page404 />
+	if (isLoading) return <Loader />
+	if (!lesson) return <ErrorPage error={404} />
 
 	return (
 		<>
@@ -128,7 +116,7 @@ const LessonPage: FC = () => {
 					<div className={Styles.HeaderLeft}>
 						{edit && <LargeDeleteButton deleteFunction={deleteLesson} />}
 						<EditableTitle
-							text={lesson?.attributes.name}
+							text={lesson?.name}
 							editState={edit}
 							reference={lessonNameRef}
 						/>
@@ -144,7 +132,7 @@ const LessonPage: FC = () => {
 							dangerouslySetInnerHTML={{ __html: lessonContent }}
 						/>
 					) : (
-						<LessonEditor //TODO Make content normal view
+						<LessonEditor
 							content={lessonContent}
 							setContent={setLessonContent}
 						/>
@@ -154,7 +142,7 @@ const LessonPage: FC = () => {
 					<div className={Styles.NextButton}>
 						<Button
 							text={'Next topic'}
-							clickFunction={markLessonAsRead}
+							clickFunction={passLesson}
 							fill
 							small
 							disabled={userPassedLessonsIds.includes(lessonId)}

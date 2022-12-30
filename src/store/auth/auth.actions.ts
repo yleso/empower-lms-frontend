@@ -6,11 +6,12 @@ import {
 import { AuthDataInterface } from '@/services/auth/auth.interface'
 import AuthService from '@/services/auth/auth.service'
 
+
 export const login = createAsyncThunk<AuthDataInterface, AuthFieldsInterface>(
 	'auth/login',
-	async ({ identifier, password }, thunkAPI) => {
+	async ({ email, password }, thunkAPI) => {
 		try {
-			return await AuthService.login(identifier, password)
+			return await AuthService.login(email, password)
 		} catch (error) {
 			return thunkAPI.rejectWithValue(error)
 		}

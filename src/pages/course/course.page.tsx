@@ -1,64 +1,45 @@
-import {
-	ChangeEvent,
-	FC,
-	MouseEvent,
-	useCallback,
-	useContext,
-	useRef,
-	useState
-} from 'react'
+import React, { FC, MouseEvent, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { Check, ChevronDown, Plus, Trash } from 'tabler-icons-react'
-import Page404 from '@/pages/404/404.page'
+import ErrorPage from '@/pages/error/error.page'
 import { EditButton } from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button'
 import EditableTitle from '@/components/generic/editable-title/editable-title'
 import Loader from '@/components/loader/loader'
-import { ThemeContext } from '@/context/theme.context'
 import { UpdateCourseDto } from '@/types/course/update-course.dto'
 import { ModuleInterface } from '@/types/module/module.interface'
-import { useAuth } from '@/hooks/useAuth.hook'
-import { useOutside } from '@/hooks/useOutside.hook'
+import { useTheme } from '@/hooks/useTheme.hook'
 import { BASE_API_URL } from '@/store/api/axios'
 import courseApi from '@/store/api/course.api'
 import lessonApi from '@/store/api/lesson.api'
 import moduleApi from '@/store/api/module.api'
 import testApi from '@/store/api/test.api'
-import userProgressApi from '@/store/api/user-progress.api'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import Styles from './course.module.scss'
-import uploadApi from '@/store/api/upload.api'
+
 
 const CoursePage: FC = () => {
 	//Hooks
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const [openedModules, setOpenedModules] = useState<number[]>([])
 	const [edit, setEdit] = useState(false)
 	const location = useLocation()
-	const { user } = useAuth()
 
 	//Fetching course id
 	const { course_id } = useParams()
-	const courseId = Number(course_id) | 0
+	const courseId = Number(course_id) || 0
 
 	//Data fetching
 	//Course data
 	const {
-		data: courseData,
+		data: course,
 		refetch: refetchCourse,
 		isLoading: courseLoading
 	} = courseApi.useGetCourseQuery(courseId)
 	//Modules data
-	const { data: modulesData, refetch: refetchModules } =
+	const { data: modules, refetch: refetchModules } =
 		moduleApi.useGetCourseModulesQuery(courseId)
 	//End of fetching data
-
-	//Data sorting
-	//Course
-	const course = courseData?.data
-	//Modules
-	const modules = modulesData?.data
-	//End of sorting data
 
 	//Data mutation functions
 	//Course
@@ -66,6 +47,10 @@ const CoursePage: FC = () => {
 	const [editCourseApi] = courseApi.useEditCourseMutation()
 	//Delete course
 	const [deleteCourseApi] = courseApi.useDeleteCourseMutation()
+	//Add icon
+	const [addIconApi] = courseApi.useAddCourseIconMutation()
+	//Delete icon
+	const [deleteIconApi] = courseApi.useDeleteCourseIconMutation()
 	//Modules
 	//Create module
 	const [createModuleApi] = moduleApi.useCreateModuleMutation()
@@ -87,10 +72,6 @@ const CoursePage: FC = () => {
 	const [editTestApi] = testApi.useEditTestMutation()
 	//Delete test
 	const [deleteTestApi] = testApi.useDeleteTestMutation()
-	//Upload file
-	const [uploadFileApi] = uploadApi.useUploadNewFileMutation()
-	//Delete file
-	const [deleteFileApi] = uploadApi.useDeleteFileMutation()
 	//End of data mutation functions
 
 	//Functions
@@ -106,17 +87,17 @@ const CoursePage: FC = () => {
 			`.${Styles.ModuleNameEdit}, .${Styles.ModuleContentName}`
 		)
 
-		for (let index = 0; index < controlButtons.length; index++) {
+		for (const controlButton of controlButtons) {
 			//@ts-ignore
-			if (controlButtons[index].contains(event.target)) {
+			if (controlButton.contains(event.target)) {
 				return
 			}
 		}
 
 		if (edit) {
-			for (let index = 0; index < names.length; index++) {
+			for (const name of names) {
 				//@ts-ignore
-				if (names[index].contains(event.target)) {
+				if (name.contains(event.target)) {
 					return
 				}
 			}
@@ -143,11 +124,6 @@ const CoursePage: FC = () => {
 	const deleteCourse = async () => {
 		await deleteCourseApi(courseId)
 		window.location.reload()
-		//Delete all modules
-		modules &&
-			modules.forEach(module => {
-				deleteModule(module)
-			})
 	}
 	//Modules
 	//Edit Modules
@@ -155,7 +131,7 @@ const CoursePage: FC = () => {
 		if (modules) {
 			for (const module of modules) {
 				//Module name editing
-				const currentModuleName = module.attributes.name
+				const currentModuleName = module.name
 				const newModuleName = moduleNames.current[module.id].outerText
 
 				if (currentModuleName !== newModuleName) {
@@ -164,8 +140,8 @@ const CoursePage: FC = () => {
 
 				//Module content editing
 				//Lesson names editing
-				for (const lesson of module.attributes.lessons.data) {
-					const currentLessonName = lesson.attributes.name
+				for (const lesson of module.lessons) {
+					const currentLessonName = lesson.name
 					const newLessonName = lessonNames.current[lesson.id].outerText
 
 					if (currentLessonName !== newLessonName) {
@@ -173,8 +149,8 @@ const CoursePage: FC = () => {
 					}
 				}
 				//Test names editing
-				for (const test of module.attributes.tests.data) {
-					const currentTestName = test.attributes.name
+				for (const test of module.tests) {
+					const currentTestName = test.name
 					const newTestName = testNames.current[test.id].outerText
 
 					if (currentTestName !== newTestName) {
@@ -201,10 +177,10 @@ const CoursePage: FC = () => {
 	const deleteModule = async (module: ModuleInterface) => {
 		await editModules()
 
-		for (const lesson of module.attributes.lessons.data) {
+		for (const lesson of module.lessons) {
 			await deleteLessonApi(lesson.id)
 		}
-		for (const test of module.attributes.tests.data) {
+		for (const test of module.tests) {
 			await deleteTestApi(test.id)
 		}
 
@@ -268,11 +244,8 @@ const CoursePage: FC = () => {
 	const toggleEdit = async () => {
 		if (!edit) {
 			setEdit(true)
-			// document.addEventListener('keydown', preventEdit, true)
 			return
 		}
-		//Remove event listeners
-		// document.removeEventListener('keydown', preventEdit, true)
 
 		setEdit(false)
 
@@ -287,8 +260,8 @@ const CoursePage: FC = () => {
 		}
 		//Course editing
 		if (
-			currentCourseTitle !== course?.attributes.name ||
-			currentCourseDescription !== course?.attributes.description
+			currentCourseTitle !== course?.name ||
+			currentCourseDescription !== course?.description
 		) {
 			await editCourse({
 				id: courseId,
@@ -302,49 +275,14 @@ const CoursePage: FC = () => {
 	}
 	//End of toggle editing function
 
-	// const preventEdit = useCallback(
-	// 	(event: KeyboardEvent) => {
-	// 		//Escape button check
-	// 		if (event.key !== 'Escape') return
-	// 		//Function
-	// 		setEdit(false)
-	// 	},
-	// 	[edit]
-	// )
-	
 	//Add icon function
-	const addIcons = async () => {
+	const addIcon = async () => {
 		//@ts-ignore
-		await uploadFileApi(uploadIconFormRef.current).then(async response => {
-			//Get new icon from response
-			//@ts-ignore
-			const icons = response.data
-			//Array of current course icons ids
-			let courseIconsIds: number[] = []
-			//Check is there current course icons
-			if (course?.attributes?.icons?.data) {
-				//Add icons ids to array
-				for (const icon of course.attributes.icons.data) {
-					courseIconsIds.push(icon.id)
-				}
-			}
-			
-			//New icons ids array
-			let newIconsIds: number[] = []
-			//Add new icons to the array
-			for (const icon of icons) {
-				newIconsIds.push(icon.id)
-			}
-			
-			await editCourse({
-				id: courseId,
-				icons: [...courseIconsIds, ...newIconsIds]
-			}).then(() => refetchCourse())
-		})
+		await addIconApi({ id: courseId, form: uploadIconFormRef.current })
 	}
-	
-	const deleteIcon = async (iconId: number) => {
-		await deleteFileApi(iconId).then(() => refetchCourse())
+
+	const deleteIcon = async (iconUrl: string) => {
+		await deleteIconApi({ id: courseId, iconUrl })
 	}
 
 	//End of Function
@@ -354,71 +292,60 @@ const CoursePage: FC = () => {
 	const isLearningPage = location.pathname.startsWith('/my-learning')
 
 	//Api functions
-	const { data: progressData } =
-		userProgressApi.useGetProgressByCourseAndUserQuery({
-			userId: user?.id || 0,
-			courseId
-		})
-	//Get current progress from data
-	const progress = progressData?.data[0]
+	const { data: progress } = courseApi.useGetCourseProgressQuery(courseId)
 
 	//Passed course content arrays
 	//Array of passed modules ids
-	//Function to get array with passed modules ids
-	const getPassedModules = useCallback(() => {
+	//Passed modules ids
+	const passedModulesIds = useMemo(() => {
 		//Empty array
 		let passedModules: number[] = []
 
 		//Algorithm to add each module id to array
 		if (progress) {
-			for (const module of progress.attributes.modules.data) {
+			for (const module of progress.passed_modules) {
 				passedModules.push(module.id)
 			}
 		}
 
 		return passedModules
 	}, [progress])
-	//Constant with passed modules ids
-	const passedModulesIds = getPassedModules()
 	//Array of passed lessons ids
-	//Function to get array with passed lessons ids
-	const getPassedLessons = useCallback(() => {
+	//Passed lessons ids
+	const passedLessons = useMemo(() => {
 		//Empty array
 		let passedLessons: number[] = []
 
 		//Algorithm to add each lesson ыid to array
 		if (progress) {
-			for (const lesson of progress.attributes.lessons.data) {
+			for (const lesson of progress.passed_lessons) {
 				passedLessons.push(lesson.id)
 			}
 		}
 
 		return passedLessons
 	}, [progress])
-	//Array of passed lessons ids
-	const passedLessons = getPassedLessons()
-	//Function to get array with passed tests ids
-	const getPassedTests = useCallback(() => {
+	//Passed tests ids
+	const passedTests = useMemo(() => {
 		//Empty array
 		let passedTests: number[] = []
 
 		//Algorithm to add each test ыid to array
 		if (progress) {
-			for (const test of progress.attributes.tests.data) {
+			for (const test of progress.passed_tests) {
 				passedTests.push(test.id)
 			}
 		}
 
 		return passedTests
 	}, [progress])
-	//Constant with passed modules ids
-	const passedTests = getPassedTests()
 
 	//END OF LEARNING PART
 
 	//Exception Handling
 	if (courseLoading) return <Loader />
-	if (!course && !courseLoading) return <Page404 />
+	if (!course) return <ErrorPage error={404} />
+	if (isLearningPage && !progress) return <ErrorPage error={404} />
 
 	return (
 		<>
@@ -436,34 +363,32 @@ const CoursePage: FC = () => {
 								</button>
 							)}
 							<EditableTitle
-								text={course?.attributes.name}
+								text={course?.name}
 								editState={edit}
 								reference={courseName}
 							/>
 							<div className={Styles.CourseIcons}>
-								{course &&
-									course.attributes.icons.data !== null &&
-									course?.attributes.icons.data.map(icon => (
-										<img
-											style={{
-												cursor: edit ? 'pointer' : 'auto'
-											}}
-											onClick={edit ? () => deleteIcon(icon.id) : () => {}}
-											key={icon.id}
-											src={`${BASE_API_URL}${icon.attributes.url}`}
-											alt={icon.attributes.name}
-										/>
-									))}
+								{course.icons_urls.map(icon => (
+									<img
+										style={{
+											cursor: edit ? 'pointer' : 'auto'
+										}}
+										onClick={edit ? () => deleteIcon(icon) : () => {}}
+										key={icon}
+										src={`${BASE_API_URL}${icon}`}
+										alt={icon}
+									/>
+								))}
 								{edit && (
 									<form ref={uploadIconFormRef}>
 										<input
 											style={{ display: 'none' }}
 											type={'file'}
-											name={'files'}
-											id={'files'}
-											onChange={addIcons}
+											name={'icon'}
+											id={'icon'}
+											onChange={addIcon}
 										/>
-										<label htmlFor={'files'} className={Styles.IconsAdd}>
+										<label htmlFor={'icon'} className={Styles.IconsAdd}>
 											<Plus size={18} strokeWidth={3} />
 										</label>
 									</form>
@@ -481,7 +406,7 @@ const CoursePage: FC = () => {
 						spellCheck={false}
 						ref={courseDescription}
 					>
-						{course?.attributes.description}
+						{course?.description}
 					</p>
 				</div>
 				<div className={Styles.ModulesGrid}>
@@ -512,7 +437,7 @@ const CoursePage: FC = () => {
 												moduleName as HTMLHeadingElement)
 										}
 									>
-										{module.attributes.name}
+										{module.name}
 									</h3>
 									<div className={Styles.ModuleControls}>
 										<ChevronDown
@@ -532,7 +457,7 @@ const CoursePage: FC = () => {
 									</div>
 								</div>
 								<div className={`${Text.Body1Regular} ${Styles.ModuleContent}`}>
-									{module.attributes.lessons.data.map(lesson => (
+									{module.lessons.map(lesson => (
 										<div key={lesson.id} className={Styles.ModuleSection}>
 											<Link
 												className={`${Styles.ModuleContentName} ${
@@ -550,7 +475,7 @@ const CoursePage: FC = () => {
 														lessonName as HTMLElement)
 												}
 											>
-												{lesson.attributes.name}
+												{lesson.name}
 												{isLearningPage &&
 													passedLessons.includes(lesson.id) && (
 														<Check
@@ -570,7 +495,7 @@ const CoursePage: FC = () => {
 											)}
 										</div>
 									))}
-									{module.attributes.tests.data.map(test => (
+									{module.tests.map(test => (
 										<div key={test.id} className={Styles.ModuleSection}>
 											<Link
 												className={`${Styles.ModuleContentName} ${
@@ -588,7 +513,7 @@ const CoursePage: FC = () => {
 														lessonName as HTMLElement)
 												}
 											>
-												{test.attributes.name}
+												{test.name}
 												{isLearningPage && passedTests.includes(test.id) && (
 													<Check size={16} color={Vars['system-green-color']} />
 												)}

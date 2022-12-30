@@ -1,12 +1,13 @@
 import { axiosClassic } from '@/store/api/axios'
 import { AuthDataInterface } from './auth.interface'
 
+
 class AuthService {
-	public static async login(identifier: string, password: string) {
+	public static async login(email: string, password: string) {
 		const response = await axiosClassic.post<AuthDataInterface>(
-			'/auth/local/',
+			'/auth/local/login',
 			{
-				identifier,
+				email,
 				password
 			}
 		)
@@ -14,34 +15,9 @@ class AuthService {
 		return response.data
 	}
 
-	public static async register(
-		username: string,
-		name: string,
-		surname: string,
-		email: string,
-		phone: string,
-		starting_date: Date,
-		job_title: string,
-		line_manager: string,
-		team: number,
-		password: string
-	) {
-		const response = await axiosClassic.post('auth/local/register', {
-			username,
-			name,
-			surname,
-			email,
-			phone,
-			starting_date,
-			job_title,
-			team,
-			password
-		})
-
-		return response.data
+	public static async logout() {
+		window.location.reload()
 	}
-
-	static async logout() {}
 
 	public static async changePassword(
 		currentPassword: string,

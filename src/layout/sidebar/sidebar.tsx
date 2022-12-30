@@ -1,21 +1,24 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import Divider from '@/components/generic/divider/divider'
 import SidebarButton from '@/components/sidebar-button/sidebar-button'
-import { ThemeContext } from '@/context/theme.context'
 import LogoMedium from '@/assets/img/logo/emblem-logo.png'
 import DarkLogoLarge from '@/assets/img/logo/right-text-logo-dark.png'
 import LightLogoLarge from '@/assets/img/logo/right-text-logo-light.png'
+import { useAuth } from '@/hooks/useAuth.hook'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Vars from '@/vars/vars.json'
 import Menu from './menu/menu'
 import Styles from './sidebar.module.scss'
 
 
 const Sidebar: FC = () => {
-	const { sidebarIsOpen, darkmode } = useContext(ThemeContext)
+	const { darkmode, isSidebarOpened } = useTheme()
+	const { user } = useAuth()
+	const userAccessLevel = user?.access_level || 1
 
 	return (
 		<>
-			{sidebarIsOpen && (
+			{isSidebarOpened && (
 				<aside
 					className={`${Styles.Sidebar} ${darkmode && Styles.SidebarDark}`}
 				>
@@ -32,7 +35,7 @@ const Sidebar: FC = () => {
 					<Divider />
 					<Menu />
 					<Divider />
-					<SidebarButton />
+					{userAccessLevel >= 2 && <SidebarButton />}
 				</aside>
 			)}
 		</>

@@ -2,14 +2,12 @@ interface AuthUserInterface {
 	id: number
 	name: string
 	surname: string
-	email: string
-	line_manager: string
-	phone: string | null
-	starting_date: Date
-	job_title: string
+	access_level: number
+	avatar_path: string
+	team_id: number
 }
 
 export interface AuthDataInterface {
 	user: AuthUserInterface | null
-	jwt: string
+	access_token: string
 }

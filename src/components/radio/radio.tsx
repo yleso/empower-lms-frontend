@@ -1,5 +1,5 @@
-import { FC, useContext } from 'react'
-import { ThemeContext } from '@/context/theme.context'
+import { FC } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import { RadioInterface } from './radio.interface'
 import Styles from './radio.module.scss'
@@ -13,7 +13,7 @@ const Radio: FC<RadioInterface> = ({
 	onChange,
 	onBlur
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<label

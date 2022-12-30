@@ -1,7 +1,6 @@
-export interface AnswerInterface {
-	id: number
-	attributes: {
-		name: string
-		right: boolean
-	}
+import { BaseInterface } from '@/types/base.interface'
+
+export interface AnswerInterface extends BaseInterface {
+	name: string
+	right: boolean
 }

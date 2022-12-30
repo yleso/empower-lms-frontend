@@ -1,14 +1,15 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, PropsWithChildren, useContext } from 'react'
+import { FC, PropsWithChildren } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Cookies from '../components/cookies/cookies'
 import Vars from '../vars/vars.json'
 import Styles from './layout.module.scss'
 import Navbar from './navbar/navbar'
 import Sidebar from './sidebar/sidebar'
 
+
 const Layout: FC<PropsWithChildren> = ({ children }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	const path = useLocation().pathname
 	if (path === '/login' || path === '/register') return <>{children}</>

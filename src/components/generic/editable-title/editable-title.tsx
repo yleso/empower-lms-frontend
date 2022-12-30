@@ -1,6 +1,6 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import Styles from '@/components/generic/title/title.module.scss'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import EditableTitleInterface from './editable-title.interface'
 
@@ -10,7 +10,7 @@ const EditableTitle: FC<EditableTitleInterface> = ({
 	editState,
 	reference
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<h2

@@ -7,23 +7,16 @@ import api from './api'
 const answerApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Create New Answer
-		createAnswer: builder.mutation<
-			{
-				data: AnswerInterface
-			},
-			CreateAnswerDto
-		>({
+		createAnswer: builder.mutation<AnswerInterface, CreateAnswerDto>({
 			query: dto => ({
 				url: 'answers/',
 				method: 'POST',
-				body: {
-					data: dto
-				}
+				body: dto
 			})
 			// invalidatesTags: ['Answer']
 		}),
 		//Delete Answer
-		deleteAnswer: builder.mutation<{ data: AnswerInterface }, number>({
+		deleteAnswer: builder.mutation<AnswerInterface, number>({
 			query: courseId => ({
 				url: `answers/${courseId}`,
 				method: 'DELETE'
@@ -31,13 +24,11 @@ const answerApi = api.injectEndpoints({
 			// invalidatesTags: ['Answer']
 		}),
 		//Edit Answer
-		editAnswer: builder.mutation<{ data: AnswerInterface }, UpdateAnswerDto>({
+		editAnswer: builder.mutation<AnswerInterface, UpdateAnswerDto>({
 			query: dto => ({
 				url: `answers/${dto.id}`,
-				method: 'PUT',
-				body: {
-					data: dto
-				}
+				method: 'PATCH',
+				body: dto
 			})
 		})
 	})

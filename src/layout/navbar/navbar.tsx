@@ -1,21 +1,22 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Moon, SunHigh } from 'tabler-icons-react'
 import Avatar from '@/components/avatar/avatar'
 import NavbarSearch from '@/components/navbar-search/navbar-search'
-import { ThemeContext } from '@/context/theme.context'
 import LogOut from '@/assets/icons/log-out.svg'
 import { useActions } from '@/hooks/useActions.hook'
 import { useAuth } from '@/hooks/useAuth.hook'
+import { useTheme } from '@/hooks/useTheme.hook'
+import { BASE_API_URL } from '@/store/api/axios'
 import employeeApi from '@/store/api/employee.api'
 import Text from '@/styles/text.module.scss'
 import Styles from './navbar.module.scss'
 
 
 const Navbar: FC = () => {
-	const { toggleSidebar, darkmode, toggleDarkmode } = useContext(ThemeContext)
 	const { user } = useAuth()
-	const { logout } = useActions()
+	const { darkmode } = useTheme()
+	const { logout, toggleSidebar, toggleDarkmode } = useActions()
 	const navigate = useNavigate()
 
 	const handleLogout = () => {
@@ -32,7 +33,7 @@ const Navbar: FC = () => {
 			<div className={Styles.LeftSide}>
 				<button
 					type='button'
-					onClick={() => toggleSidebar()}
+					onClick={toggleSidebar}
 					className={Styles.NavbarBurger}
 				>
 					<span />
@@ -59,10 +60,8 @@ const Navbar: FC = () => {
 								width={'32px'}
 								height={'32px'}
 								avatarPath={
-									userData?.avatar
-										? `${import.meta.env.VITE_API_URL}${
-												userData.avatar.formats.thumbnail.url
-										  }`
+									userData?.avatar_path
+										? `${BASE_API_URL}${userData.avatar_path}`
 										: 'https://via.placeholder.com/32'
 								}
 							/>

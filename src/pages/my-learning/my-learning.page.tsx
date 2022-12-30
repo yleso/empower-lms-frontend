@@ -1,15 +1,14 @@
-import { useQuery } from '@apollo/client';
-import { FC, useCallback, useEffect, useState } from 'react';
-import 'react-circular-progressbar/dist/styles.css';
-import { Link } from 'react-router-dom';
-import { learningsQuery, progressInterface } from '@/pages/my-learning/learnings.query';
-import AssignedCourse from '@/components/assigned-course/assigned-course';
-import Switcher from '@/components/generic/switcher/switcher';
-import Title from '@/components/generic/title/title';
-import Loader from '@/components/loader/loader';
+import { FC, useCallback, useState } from 'react'
+import 'react-circular-progressbar/dist/styles.css'
+import { Link } from 'react-router-dom'
+import AssignedCourse from '@/components/assigned-course/assigned-course'
+import Switcher from '@/components/generic/switcher/switcher'
+import Title from '@/components/generic/title/title'
+import Loader from '@/components/loader/loader'
 import { useAuth } from '@/hooks/useAuth.hook'
-import { calculateProgress } from '@/utils/calculate-progress.util';
-import Styles from './my-learning.module.scss';
+import { calculateProgress } from '@/utils/calculate-progress.util'
+import employeeApi from '@/store/api/employee.api'
+import Styles from './my-learning.module.scss'
 
 
 const MylearningPage: FC = () => {
@@ -17,94 +16,59 @@ const MylearningPage: FC = () => {
 	const [isDone, setIsDone] = useState(false)
 	const { user } = useAuth()
 	const userId = user?.id || 0
-	const { loading, data, refetch } = useQuery(learningsQuery(userId))
-
-	const [progresses, setProgresses] = useState<progressInterface[]>(
-		data?.userProgresses.data
-	)
-
-	useEffect(() => {
-		refetch().then()
-	}, [])
-
-	useEffect(() => {
-		setProgresses(data?.userProgresses.data)
-	}, [loading])
-
-	const getIcons = useCallback(
-		(progressId: number) => {
-			const currentProgress = progresses.filter(
-				progress => progress.id === progressId
-			)[0]
-
-			let icons = []
-
-			for (const icon of currentProgress.attributes.course.data.attributes.icons
-				.data) {
-				icons.push({
-					name: icon.attributes.name,
-					url: icon.attributes.url
-				})
-			}
-
-			return icons
-		},
-		[progresses]
-	)
+	const { data: learnings, isLoading } =
+		employeeApi.useGetEmployeeLearningsQuery(userId)
 
 	const getTotal = useCallback(
 		(progressId: number, lessons: boolean) => {
-			const currentProgress = progresses.filter(
+			//@ts-ignore
+			const currentLearning = learnings.filter(
 				progress => progress.id === progressId
 			)[0]
 
 			let total = 0
 
-			for (const module of currentProgress.attributes.course.data.attributes
-				.modules.data) {
-				const attributes = module.attributes
-
+			for (const module of currentLearning.course.modules) {
 				if (lessons) {
-					total += attributes.lessons.data.length
+					total += module.lessons.length
 				} else {
-					total += attributes.tests.data.length
+					total += module.tests.length
 				}
 			}
 
 			return total
 		},
-		[progresses]
+		[learnings]
 	)
 
 	const formattedProgresses = () => {
 		let formattedProgresses = []
 
-		if (progresses) {
-			for (const progress of progresses) {
+		if (learnings) {
+			for (const learning of learnings) {
 				const formattedProgress = {
-					id: progress.id,
-					courseId: progress.attributes.course.data.id,
-					icons: getIcons(progress.id),
-					name: progress.attributes.course.data.attributes.name,
-					description: progress.attributes.course.data.attributes.name,
+					id: learning.id,
+					courseId: learning.course.id,
+					icons: learning.course.icons_urls,
+					name: learning.course.name,
+					description: learning.course.description,
 					totalProgress: calculateProgress(
-						getTotal(progress.id, true),
-						progress.attributes.lessons.data.length,
-						getTotal(progress.id, false),
-						progress.attributes.tests.data.length
+						getTotal(learning.id, true),
+						learning.passed_lessons.length,
+						getTotal(learning.id, false),
+						learning.passed_tests.length
 					),
 					modules: {
-						total:
-							progress.attributes.course.data.attributes.modules.data.length,
-						got: progress.attributes.modules.data.length
+						total: learning.course.modules.length,
+						got: learning.passed_modules.length
 					},
 					lessons: {
-						total: getTotal(progress.id, true),
-						got: progress.attributes.lessons.data.length
+						total: getTotal(learning.id, true),
+						got: learning.passed_lessons.length
 					},
 					tests: {
-						total: getTotal(progress.id, false),
-						got: progress.attributes.tests.data.length
+						total: getTotal(learning.id, false),
+						got: learning.passed_tests.length
 					}
 				}
 
@@ -125,7 +89,7 @@ const MylearningPage: FC = () => {
 
 	const courseList = !isDone ? assigned : done
 
-	if (loading) return <Loader />
+	if (isLoading) return <Loader />
 
 	return (
 		<section>
@@ -134,7 +98,7 @@ const MylearningPage: FC = () => {
 				<Switcher state={isDone} toggle={setIsDone} />
 			</div>
 			<div className={Styles.CoursesGrid}>
-				{progresses &&
+				{learnings &&
 					courseList.map(progress => (
 						<Link
 							key={progress.id}

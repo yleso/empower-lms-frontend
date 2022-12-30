@@ -4,13 +4,12 @@ import storage from 'redux-persist/lib/storage'
 import api from './api/api'
 import { rtkQueryErrorLogger } from './middlewares/error.middleware'
 import { rootReducer } from './root.reducer'
-import searchApi from '@/store/api/search-api'
 
 
 const persistConfig = {
 	key: 'root',
 	storage,
-	whitelist: ['auth']
+	whitelist: ['auth', 'theme']
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
@@ -22,7 +21,6 @@ const store = configureStore({
 			serializableCheck: false
 		})
 			.concat(rtkQueryErrorLogger)
-			.concat(searchApi.middleware)
 			.concat(api.middleware)
 })
 

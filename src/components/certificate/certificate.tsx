@@ -1,6 +1,6 @@
 import moment from 'moment/moment'
-import { FC, useContext } from 'react'
-import { ThemeContext } from '@/context/theme.context'
+import { FC } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import Styles from './certificate.module.scss'
@@ -43,7 +43,7 @@ const CertificateIcon: FC = () => {
 }
 
 const Certificate: FC<CertificateInterface> = certificate => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	const startedOn = Date.parse(String(certificate.startedOn))
 	const finishedOn = Date.parse(String(certificate.finishedOn))

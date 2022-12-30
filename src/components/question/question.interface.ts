@@ -20,9 +20,7 @@ interface UserProgress {
 }
 
 export interface QuestionEditInterface {
-	testId: number
 	userProgress: UserProgress
-	questionTestId: number
 	question: QuestionInterface
 	editing: boolean
 	changeOrderFunction: (questionId: number, increase: boolean) => Promise<void>

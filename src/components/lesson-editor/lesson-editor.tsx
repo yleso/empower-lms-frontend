@@ -1,4 +1,4 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import EditorToolbar, {
@@ -6,13 +6,13 @@ import EditorToolbar, {
 	modules
 } from '@/components/lesson-editor/editor-toolbar'
 import LessonEditorInterface from '@/components/lesson-editor/lesson-editor.interface'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import './lesson-editor-content.scss'
 import './lesson-editor.scss'
 
 
 const LessonEditor: FC<LessonEditorInterface> = ({ content, setContent }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	const handleChangeContent = (newContent: string) => {
 		setContent(newContent)

@@ -1,7 +1,7 @@
-import { FC, MouseEvent, useContext, useEffect, useRef, useState } from 'react'
+import { FC, MouseEvent, useEffect, useRef, useState } from 'react'
 import { Plus } from 'tabler-icons-react'
 import SmallDeleteButton from '@/generic/buttons/delete-buttons/small-delete-button/small-delete-button'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import faqApi from '@/store/api/faq.api'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
@@ -17,7 +17,7 @@ const Faq: FC<FAQInterface> = ({
 	deleteFunction
 }) => {
 	//Hooks
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const [opened, setOpened] = useState(false)
 	//Hooks to work with api
 	useEffect(() => {

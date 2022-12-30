@@ -1,15 +1,9 @@
+import { BaseInterface } from '@/types/base.interface'
 import { LessonInterface } from '@/types/lesson/lesson.interface'
 import { TestInterface } from '@/types/test/test.interface'
 
-export interface ModuleInterface {
-	id: number
-	attributes: {
-		name: string
-		lessons: {
-			data: LessonInterface[]
-		}
-		tests: {
-			data: TestInterface[]
-		}
-	}
+export interface ModuleInterface extends BaseInterface {
+	name: string
+	lessons: LessonInterface[]
+	tests: TestInterface[]
 }

@@ -1,8 +1,5 @@
 export interface AssignedCourseInterface {
-	icons: {
-		name: string
-		url: string
-	}[]
+	icons: string[]
 	id: number
 	name: string
 	description: string

@@ -1,12 +1,10 @@
-import emailjs from '@emailjs/browser'
-import React, { FC, useContext, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import Button from '@/components/generic/buttons/primary-button/button'
 import Field from '@/components/generic/field/field'
 import Popup from '@/components/popup/popup'
-import { ThemeContext } from '@/context/theme.context'
-import { GeneratePassword } from '@/utils/password-generator.util'
+import { useTheme } from '@/hooks/useTheme.hook'
 import employeeApi from '@/store/api/employee.api'
 import Text from '@/styles/text.module.scss'
 import TeammateFields from './teammate-popul.fields'
@@ -16,13 +14,12 @@ import Styles from './teammate-popup.module.scss'
 
 
 const TeammatePopup: FC<TeammatePopupInterface> = ({
-	popupShow,
-	setPopupShow,
-	popupRef,
-	teamName,
-	setValue
+	isShow,
+	setIsShow,
+	reference,
+	teamName
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	const { team_id } = useParams()
 	const teamId = Number(team_id) || 0
@@ -31,74 +28,48 @@ const TeammatePopup: FC<TeammatePopupInterface> = ({
 
 	useEffect(() => {
 		setError(undefined)
-		return () => {
-			setError(undefined)
+	}, [isShow])
+
+	const [createUserApi, { isLoading: userIsCreating }] =
+		employeeApi.useCreateEmployeeMutation()
+
+	const { register, handleSubmit, reset } = useForm<TeammatePopupFormInterface>(
+		{
+			mode: 'onChange'
 		}
-	}, [])
-
-	const [createUserApi] = employeeApi.useCreateEmployeeMutation()
-
-	const sendEmail = async (name: string, email: string, password: string) => {
-		await emailjs.send(
-			import.meta.env.VITE_EMAIL_SERVICE_ID,
-			import.meta.env.VITE_EMAIL_TEMPLATE_ID,
-			{
-				user_name: name,
-				user_email: email,
-				user_password: password
-			},
-			import.meta.env.VITE_EMAIL_PUBLIC_KEY
-		)
-	}
-
-	const { register, handleSubmit } = useForm<TeammatePopupFormInterface>({
-		mode: 'onChange'
-	})
+	)
 
 	const onSubmit: SubmitHandler<TeammatePopupFormInterface> = async data => {
 		const userData = {
 			...data,
-			username: data.email,
+			role: 1,
 			team: teamId,
-			password: GeneratePassword(12)
+			line_manager: +data.line_manager,
+			phone_number: data.phone_number ? data.phone_number : undefined
 		}
 
-		await createUserApi(userData)
-			.then(response => {
-				//Get new employee from response
-				//@ts-ignore
-				const newEmployee = response.data
-				//Get error from response
-				//@ts-ignore
-				const error = response.error
-				//If email is already registered
-				if (error) {
-					if (error.data.error.message === 'Email already taken') {
-						return setError('Employee with this email is already exist')
-					}
-
-					return setError('Employee with this phone is already exist')
-				}
-				//Add new employee to current list
-				//@ts-ignore
-				setValue(currentEmployees => [...currentEmployees, newEmployee])
-				//Close popup
-				setPopupShow(false)
-			})
-			//Send email with login and password to new employee
-			.then(() => {
-				sendEmail(userData.name, userData.email, userData.password)
-			})
+		await createUserApi(userData).then(response => {
+			//Get error from response
+			//@ts-ignore
+			const error = response?.error
+			//If email is already registered
+			if (error) {
+				//Get error message
+				const errorMessage = error?.data.message
+				//Set error and exist the function
+				return setError(errorMessage)
+			}
+			//Close popup
+			setIsShow(false)
+			//Reset form
+			reset()
+		})
 	}
 
 	return (
 		<>
 			{/*Content*/}
-			<Popup
-				isOpened={popupShow}
-				setIsOpened={setPopupShow}
-				popupRef={popupRef}
-			>
+			<Popup isOpened={isShow} setIsOpened={setIsShow} reference={reference}>
 				<div className={`${darkmode && Styles.ContentDark} ${Styles.Content}`}>
 					<form
 						className={`${Styles.PopupForm}`}
@@ -135,7 +106,13 @@ const TeammatePopup: FC<TeammatePopupInterface> = ({
 							</div>
 						</div>
 						{error && <div className={Styles.Error}>{error}</div>}
-						<Button text={'Add a team member'} fill small submit />
+						<Button
+							text={'Add a team member'}
+							fill
+							small
+							submit
+							disabled={userIsCreating}
+						/>
 					</form>
 				</div>
 			</Popup>

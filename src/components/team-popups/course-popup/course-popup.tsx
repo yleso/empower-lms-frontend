@@ -1,33 +1,27 @@
-import React, { FC, useContext } from 'react'
+import React, { FC } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import Button from '@/components/generic/buttons/primary-button/button'
 import Field from '@/components/generic/field/field'
 import Popup from '@/components/popup/popup'
-import { ThemeContext } from '@/context/theme.context'
 import { CreateCourseDto } from '@/types/course/create-course.dto'
 import { useAuth } from '@/hooks/useAuth.hook'
+import { useTheme } from '@/hooks/useTheme.hook'
 import courseApi from '@/store/api/course.api'
-import employeeApi from '@/store/api/employee.api'
 import Text from '@/styles/text.module.scss'
 import Styles from '../faq-popup/faq-popup.module.scss'
 import { PopupInterface } from '../popup.interface'
 
 
-const CoursePopup: FC<PopupInterface> = ({
-	popupShow,
-	setPopupShow,
-	popupRef
-}) => {
-	const { darkmode } = useContext(ThemeContext)
+const CoursePopup: FC<PopupInterface> = ({ isShow, setIsShow, reference }) => {
+	const { darkmode } = useTheme()
 
 	const { user } = useAuth()
-	const { data: userTeam } = employeeApi.useGetEmployeeTeamQuery(user?.id || 0)
-	const teamId = userTeam?.data[0].id
+	const teamId = user?.team_id || 0
 
 	const navigate = useNavigate()
 
-	const { register, handleSubmit } = useForm<CreateCourseDto>({
+	const { register, handleSubmit, reset } = useForm<CreateCourseDto>({
 		mode: 'onChange'
 	})
 
@@ -39,17 +33,18 @@ const CoursePopup: FC<PopupInterface> = ({
 			team: Number(teamId)
 		}
 
-		setPopupShow(false)
+		setIsShow(false)
 		await createCourse(courseData).then(response => {
 			//Get new course from response
 			//@ts-ignore
-			const newCourse = response.data.data
+			const newCourse = response.data
 			navigate(`/knowledge-base/course/${newCourse.id}`)
 		})
+		reset()
 	}
 
 	return (
-		<Popup isOpened={popupShow} setIsOpened={setPopupShow} popupRef={popupRef}>
+		<Popup isOpened={isShow} setIsOpened={setIsShow} reference={reference}>
 			<form
 				className={`${Styles.Content} ${darkmode && Styles.ContentDark}`}
 				onSubmit={handleSubmit(onSubmit)}

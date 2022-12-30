@@ -1,10 +1,10 @@
-import React, { FC, useContext } from 'react'
+import React, { FC } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import Field from '@/generic/field/field'
 import Button from '@/components/generic/buttons/primary-button/button'
-import { ThemeContext } from '@/context/theme.context'
 import { CreateCourseDto } from '@/types/course/create-course.dto'
+import { useTheme } from '@/hooks/useTheme.hook'
 import materialApi from '@/store/api/material.api'
 import Text from '@/styles/text.module.scss'
 import Popup from '../../popup/popup'
@@ -15,12 +15,11 @@ import { PopupInterface } from '../popup.interface'
 type FixType = any
 
 const MaterialPopup: FC<PopupInterface> = ({
-	popupShow,
-	setPopupShow,
-	popupRef,
-	setValue
+	isShow,
+	setIsShow,
+	reference
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const { team_id: teamId } = useParams()
 
 	const { register, handleSubmit } = useForm<CreateCourseDto>({
@@ -35,19 +34,12 @@ const MaterialPopup: FC<PopupInterface> = ({
 			team: Number(teamId)
 		}
 
-		setPopupShow(false)
-		await createMaterial(materialData).then(response => {
-			//Get new material from response
-			//@ts-ignore
-			const newMaterial = response.data.data
-			//Add new material to current list
-			//@ts-ignore
-			setValue(currentMaterials => [...currentMaterials, newMaterial])
-		})
+		setIsShow(false)
+		await createMaterial(materialData)
 	}
 
 	return (
-		<Popup isOpened={popupShow} setIsOpened={setPopupShow} popupRef={popupRef}>
+		<Popup isOpened={isShow} setIsOpened={setIsShow} reference={reference}>
 			<form
 				className={`${Styles.Content} ${darkmode && Styles.ContentDark}`}
 				onSubmit={handleSubmit(onSubmit)}

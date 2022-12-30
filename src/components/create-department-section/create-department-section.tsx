@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useContext } from 'react'
+import { FC, PropsWithChildren } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import Button from '@/generic/buttons/primary-button/button'
@@ -6,7 +6,7 @@ import Field from '@/generic/field/field'
 import { PopupInterface } from '@/components/popup/popup.interface.js'
 import Popup from '@/components/popup/popup.js'
 import Radio from '@/components/radio/radio'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import departmentApi from '@/store/api/department.api'
 import teamApi from '@/store/api/team.api'
 import Text from '@/styles/text.module.scss'
@@ -17,10 +17,10 @@ import { CreateDepartmentSectionInterface } from './create-department.interface'
 const CreateDepartmentSection: FC<PropsWithChildren<PopupInterface>> = ({
 	isOpened,
 	setIsOpened,
-	popupRef
+	reference
 }) => {
 	//Hooks
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const { dep_id, team_id } = useParams()
 	const {
 		register,
@@ -63,7 +63,7 @@ const CreateDepartmentSection: FC<PropsWithChildren<PopupInterface>> = ({
 	}
 
 	return (
-		<Popup isOpened={isOpened} setIsOpened={setIsOpened} popupRef={popupRef}>
+		<Popup isOpened={isOpened} setIsOpened={setIsOpened} reference={reference}>
 			<form onSubmit={handleSubmit(createSection)} className={Styles.Form}>
 				<div className={`${Styles.Field} ${darkmode && Styles.FieldDark}`}>
 					<h6 className={Text.H6Bold}>Name</h6>

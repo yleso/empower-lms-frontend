@@ -1,13 +1,5 @@
-interface IconDataInterface {
-	id: number
-	attributes: {
-		name: string
-		url: string
-	}
-}
-
 export interface CourseInterface {
-	icons?: IconDataInterface[] | null
+	icons: string[]
 	id: number
 	name: string
 	description: string

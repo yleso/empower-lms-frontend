@@ -1,7 +1,6 @@
-export interface LessonInterface {
-	id: number
-	attributes: {
-		name: string
-		content: any
-	}
+import { BaseInterface } from '@/types/base.interface'
+
+export interface LessonInterface extends BaseInterface {
+	name: string
+	content: string
 }

@@ -1,17 +1,13 @@
 export interface CreateUserDto {
-	email: string
-	username: string
-
 	name: string
 	surname: string
+	email: string
 	starting_date: Date
 
 	job_title: string
-	line_manager: string
+	line_manager: number
 	team: number
 
-	phone?: string
+	phone_number?: string
 	role?: number
-
-	password: string
 }

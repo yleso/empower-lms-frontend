@@ -34,7 +34,7 @@ export function FilterWords(
 	const letters = [...bigLetters, ...toLower(bigLetters)]
 
 	return words?.filter(word => {
-		const wordName = word?.attributes.name
+		const wordName = word?.name
 
 		return (
 			wordName.startsWith(letters[0]) ||

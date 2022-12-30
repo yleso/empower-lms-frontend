@@ -5,6 +5,7 @@ import { RootStateType } from '@/store/store'
 const api = createApi({
 	reducerPath: 'api',
 	tagTypes: [
+		'Application',
 		'User',
 		'Department',
 		'Team',
@@ -18,12 +19,13 @@ const api = createApi({
 		'Question',
 		'Answer',
 		'Upload',
-		'User Progress'
+		'User Progress',
+		'Search'
 	],
 	baseQuery: fetchBaseQuery({
 		baseUrl: API_URL,
 		prepareHeaders: (headers, { getState }) => {
-			const token = (getState() as RootStateType).auth.jwt
+			const token = (getState() as RootStateType).auth.access_token
 			if (token) headers.set('Authorization', `Bearer ${token}`)
 
 			return headers

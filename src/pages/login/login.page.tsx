@@ -1,14 +1,14 @@
-import React, { FC, useContext } from 'react'
+import React, { FC } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import ReactPlayer from 'react-player'
 import { Navigate, useLocation } from 'react-router-dom'
 import Button from '@/components/generic/buttons/primary-button/button'
 import Field from '@/components/generic/field/field'
 import Loader from '@/components/loader/loader'
-import { ThemeContext } from '@/context/theme.context'
 import EmblemLogo from '@/assets/img/logo/emblem-logo.png'
 import { useActions } from '@/hooks/useActions.hook'
 import { useAuth } from '@/hooks/useAuth.hook'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import { AuthFieldsInterface } from './auth-fields.interface'
@@ -16,26 +16,12 @@ import Styles from './login.module.scss'
 
 
 const LoginPage: FC = () => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const type = useLocation().pathname.replace('/', '')
 	const { login } = useActions()
 	const { user, isLoading } = useAuth()
 
-	const { register, handleSubmit } = useForm<AuthFieldsInterface>({
-		mode: 'onChange'
-	})
-	const {
-		ref: idRef,
-		name: idName,
-		onChange: idOnChange,
-		onBlur: idOnBlur
-	} = register('identifier')
-	const {
-		ref: passwordRef,
-		name: passwordName,
-		onChange: passwordOnChange,
-		onBlur: passwordOnBlur
-	} = register('password')
+	const { register, handleSubmit } = useForm<AuthFieldsInterface>()
 
 	const onSubmit: SubmitHandler<AuthFieldsInterface> = data => {
 		login(data)
@@ -68,27 +54,21 @@ const LoginPage: FC = () => {
 								{type === 'login' ? 'Email' : 'Password'}
 							</label>
 							<Field
-								type={type === 'login' ? 'text' : 'password'}
+								type={'text'}
 								theme={!darkmode ? 'white' : 'black'}
-								reference={idRef}
-								name={idName}
-								onChange={idOnChange}
-								onBlur={idOnBlur}
 								required
+								{...register('email')}
+								reference={register('email').ref}
 							/>
 						</div>
 						<div className={Styles.FormInput}>
-							<label className={Text.H6Bold}>
-								{type === 'login' ? 'Password' : 'Confirm Password'}
-							</label>
+							<label className={Text.H6Bold}>Password</label>
 							<Field
 								type={'password'}
 								theme={!darkmode ? 'white' : 'black'}
-								reference={passwordRef}
-								name={passwordName}
-								onChange={passwordOnChange}
-								onBlur={passwordOnBlur}
 								required
+								{...register('password')}
+								reference={register('password').ref}
 							/>
 						</div>
 						{/*TODO Make auth errors*/}

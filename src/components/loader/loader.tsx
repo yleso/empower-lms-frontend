@@ -1,9 +1,9 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, useContext } from 'react'
+import { FC } from 'react'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Styles from './loader-element.module.scss'
 
 const Loader: FC = () => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<>

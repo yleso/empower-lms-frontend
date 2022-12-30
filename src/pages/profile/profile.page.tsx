@@ -1,20 +1,14 @@
-import { useQuery } from '@apollo/client'
 import React, {
 	ChangeEvent,
 	DragEvent,
 	FC,
-	useContext,
 	useEffect,
 	useMemo,
 	useRef,
 	useState
 } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import Page404 from '@/pages/404/404.page'
-import {
-	learningsQuery,
-	progressInterface
-} from '@/pages/my-learning/learnings.query'
+import ErrorPage from '@/pages/error/error.page'
 import AssignedCourseMini from '@/components/assigned-course/mini/assigned-course'
 import { AssignedCourseInterface } from '@/components/assigned-course/mini/assigned-course.interface'
 import Avatar from '@/components/avatar/avatar'
@@ -23,20 +17,21 @@ import { CertificateInterface } from '@/components/certificate/sertificate.inter
 import Field from '@/components/generic/field/field'
 import Loader from '@/components/loader/loader'
 import Popup from '@/components/popup/popup'
-import { ThemeContext } from '@/context/theme.context'
 import { useAuth } from '@/hooks/useAuth.hook'
 import { useOutside } from '@/hooks/useOutside.hook'
+import { useTheme } from '@/hooks/useTheme.hook'
 import { calculateProgress } from '@/utils/calculate-progress.util'
+import { BASE_API_URL } from '@/store/api/axios'
 import employeeApi from '@/store/api/employee.api'
-import uploadApi from '@/store/api/upload.api'
 import Text from '@/styles/text.module.scss'
 import Vars from '@/vars/vars.json'
 import { ProfileInputInterface } from './profile-input.interface'
 import Styles from './profile.module.scss'
 
+
 const ProfilePage: FC = () => {
 	//Hooks
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	const { user } = useAuth()
 	const { employee_id: userId } = useParams()
 	const path = useLocation().pathname
@@ -48,9 +43,8 @@ const ProfilePage: FC = () => {
 	//Data fetch
 	const { data: userData, isLoading: userDataLoading } =
 		employeeApi.useGetEmployeeQuery(profileId)
-	const { data: progressData, loading: progressLoading } = useQuery(
-		learningsQuery(profileId)
-	)
+	const { data: learnings, isLoading: learningsLearning } =
+		employeeApi.useGetEmployeeLearningsQuery(profileId)
 	//End of fetching data
 
 	const User = { ...userData }
@@ -61,33 +55,26 @@ const ProfilePage: FC = () => {
 		{ label: 'Team', value: User?.team?.name, type: 'text' },
 		{ label: 'Job title', value: User.job_title, type: 'text' },
 		{ label: 'Phone number', value: User.phone, type: 'text' },
-		{ label: 'Starting date', value: User.starting_date, type: 'text' },
-		{ label: 'Line manager', value: User.line_manager, type: 'text' }
+		{ label: 'Starting date', value: User?.starting_date, type: 'text' },
+		{ label: 'Line manager', value: User?.line_manager?.name, type: 'text' }
 	]
 
 	const [activeSwitch, setActiveSwitch] = useState<'Assigned' | 'Certificates'>(
 		'Assigned'
 	)
 
-	const [progresses, setProgresses] = useState<progressInterface[]>()
-
-	useEffect(() => {
-		setProgresses(progressData?.userProgresses.data)
-	}, [progressData])
-
 	//Assigned courses array
 	const { assignedCourses, certificates } = useMemo(() => {
 		let assignedCourses: AssignedCourseInterface[] = []
 		let certificates: CertificateInterface[] = []
 
-		if (progresses) {
-			for (const progress of progresses) {
+		if (learnings) {
+			for (const learning of learnings) {
 				const lessonsCount = (): number => {
 					let lessonsCount = 0
 
-					for (const module of progress.attributes.course.data.attributes
-						.modules.data) {
-						lessonsCount += module.attributes.lessons.data.length
+					for (const module of learning.course.modules) {
+						lessonsCount += module.lessons.length
 					}
 
 					return lessonsCount
@@ -96,9 +83,8 @@ const ProfilePage: FC = () => {
 				const testsCount = (): number => {
 					let testsCount = 0
 
-					for (const module of progress.attributes.course.data.attributes
-						.modules.data) {
-						testsCount += module.attributes.tests.data.length
+					for (const module of learning.course.modules) {
+						testsCount += module.tests.length
 					}
 
 					return testsCount
@@ -106,26 +92,26 @@ const ProfilePage: FC = () => {
 
 				const totalProgress = calculateProgress(
 					lessonsCount(),
-					progress.attributes.lessons.data.length,
+					learning.passed_lessons.length,
 					testsCount(),
-					progress.attributes.tests.data.length
+					learning.passed_tests.length
 				)
 
 				if (totalProgress !== 100) {
 					const formattedAssignedCourse = {
-						id: progress.id,
-						name: progress.attributes.course.data.attributes.name,
+						id: learning.id,
+						name: learning.course.name,
 						progress: totalProgress,
-						startedOn: progress.attributes.createdAt
+						startedOn: learning.created_at
 					}
 
 					assignedCourses.push(formattedAssignedCourse)
 				} else {
 					const formattedCertificate = {
-						id: progress.id,
-						name: progress.attributes.course.data.attributes.name,
-						startedOn: progress.attributes.createdAt,
-						finishedOn: progress.attributes.updatedAt
+						id: learning.id,
+						name: learning.course.name,
+						startedOn: learning.created_at,
+						finishedOn: learning.updated_at
 					}
 
 					certificates.push(formattedCertificate)
@@ -134,51 +120,23 @@ const ProfilePage: FC = () => {
 		}
 
 		return { assignedCourses, certificates }
-	}, [progresses])
-
-	// const {
-	// 	register,
-	// 	formState: { errors },
-	// 	handleSubmit
-	// } = useForm<ChangePasswordFieldsInterface>({
-	// 	mode: 'onChange'
-	// })
-
-	// const { changePassword } = useActions()
-
-	// const onSubmit: SubmitHandler<ChangePasswordFieldsInterface> = data => {
-	// 	changePassword(data)
-	// 	window.location.reload()
-	// }
+	}, [learnings])
 
 	//For popup
 	const [drag, setDrag] = useState(false)
 	const [uploadError, setUploadError] = useState(false)
 
-	const [uploadAvatar] = uploadApi.useUploadNewFileMutation()
-	const [deleteAvatar] = uploadApi.useDeleteFileMutation()
+	const [changeAvatarApi] = employeeApi.useChangeAvatarMutation()
 
-	const [changeEmployeeAvatar] = employeeApi.useChangeEmployeeAvatarMutation()
-
-	const changeAvatarApi = async () => {
+	const changeAvatar = async () => {
 		setDrag(false)
 		setUploadError(false)
 
-		if (uploadFormRef.current === null) return
+		const form = uploadFormRef.current
 
-		//Deleting previous avatar
-		if (User.avatar) {
-			await deleteAvatar(User.avatar.id)
-		}
+		if (form === null) return
 
-		//Uploading new avatar
-		await uploadAvatar(uploadFormRef.current).then(async response => {
-			await changeEmployeeAvatar({
-				userId: profileId,
-				// @ts-ignore
-				avatarId: response.data[0].id
-			})
-		})
+		changeAvatarApi(form)
 
 		setIsShow(false)
 	}
@@ -212,13 +170,13 @@ const ProfilePage: FC = () => {
 
 		if (avatarRef.current !== null) {
 			avatarRef.current.files = event.dataTransfer.files
-			await changeAvatarApi()
+			await changeAvatar()
 		}
 	}
 
-	const changeAvatar = async (event: ChangeEvent<HTMLInputElement>) => {
+	const inputChangeAvatar = async (event: ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files !== null) {
-			await changeAvatarApi()
+			await changeAvatar()
 		}
 	}
 
@@ -234,20 +192,20 @@ const ProfilePage: FC = () => {
 		}
 	}, [isShow])
 
-	if (userDataLoading || progressLoading) return <Loader />
-	if (!userData) return <Page404 />
+	if (userDataLoading || learningsLearning) return <Loader />
+	if (!userData) return <ErrorPage error={404} />
 
 	return (
 		<>
-			<Popup isOpened={isShow} setIsOpened={setIsShow} popupRef={popupRef}>
+			<Popup isOpened={isShow} setIsOpened={setIsShow} reference={popupRef}>
 				<form id={Styles.UploadForm} ref={uploadFormRef}>
 					<input
 						ref={memoAvatarRef}
-						name={'files'}
+						name={'avatar'}
 						id={Styles.UploadAvatar}
 						type={'file'}
 						accept={'image/*'}
-						onChange={changeAvatar}
+						onChange={inputChangeAvatar}
 					/>
 					<label
 						htmlFor={Styles.UploadAvatar}
@@ -290,8 +248,8 @@ const ProfilePage: FC = () => {
 								height={'168px'}
 								alt={'Avatar'}
 								avatarPath={
-									User?.avatar
-										? `http://localhost:4200${User?.avatar?.formats.thumbnail.url}`
+									User?.avatar_path
+										? `${BASE_API_URL}${User.avatar_path}`
 										: 'https://via.placeholder.com/128x168'
 								}
 							/>
@@ -320,47 +278,6 @@ const ProfilePage: FC = () => {
 						))}
 					</div>
 				</div>
-
-				{/*{userData.id === user?.id &&*/}
-				{/*	<form*/}
-				{/*		className={Styles.PasswordChange}*/}
-				{/*		onSubmit={handleSubmit(onSubmit)}*/}
-				{/*	>*/}
-				{/*		<div className={`${Styles.ProfileInput}`}>*/}
-				{/*			<h6 className={Text.H6Bold}>Current Password</h6>*/}
-				{/*			<Field*/}
-				{/*				type={'password'}*/}
-				{/*				theme={!darkmode ? 'grey' : 'black'}*/}
-				{/*				{...register('currentPassword')}*/}
-				{/*				reference={register('currentPassword').ref}*/}
-				{/*			/>*/}
-				{/*		</div>*/}
-				{/*		<div className={`${Styles.ProfileInput}`}>*/}
-				{/*			<h6 className={Text.H6Bold}>New Password</h6>*/}
-				{/*			<Field*/}
-				{/*				type={'password'}*/}
-				{/*				theme={!darkmode ? 'grey' : 'black'}*/}
-				{/*				{...register('password')}*/}
-				{/*				reference={register('password').ref}*/}
-				{/*			/>*/}
-				{/*		</div>*/}
-				{/*		<div className={`${Styles.ProfileInput}`}>*/}
-				{/*			<h6 className={Text.H6Bold}>Confirm Password</h6>*/}
-				{/*			<Field*/}
-				{/*				type={'password'}*/}
-				{/*				theme={!darkmode ? 'grey' : 'black'}*/}
-				{/*				{...register('passwordConfirmation')}*/}
-				{/*				reference={register('passwordConfirmation').ref}*/}
-				{/*			/>*/}
-				{/*		</div>*/}
-				{/*		<Button*/}
-				{/*			text={'Change'}*/}
-				{/*			stroke*/}
-				{/*			small*/}
-				{/*			submit*/}
-				{/*		/>*/}
-				{/*	</form>*/}
-				{/*}*/}
 			</section>
 
 			<section className={Styles.SwitchSection}>

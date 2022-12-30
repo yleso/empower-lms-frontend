@@ -7,49 +7,30 @@ import api from '@/store/api/api'
 const testApi = api.injectEndpoints({
 	endpoints: builder => ({
 		//Get Course
-		getTest: builder.query<{ data: TestInterface }, number>({
-			query: courseId => `tests/${courseId}`
-			// providesTags: () => [{ type: 'Test' }]
+		getTest: builder.query<TestInterface, number>({
+			query: courseId => `tests/${courseId}`,
+			providesTags: () => [{ type: 'Test' }]
 		}),
 		//Create Test
-		createTest: builder.mutation<
-			{
-				data: TestInterface
-			},
-			CreateTestDto
-		>({
+		createTest: builder.mutation<TestInterface, CreateTestDto>({
 			query: dto => ({
 				url: 'tests/',
 				method: 'POST',
-				body: {
-					data: dto
-				}
+				body: dto
 			})
 			// invalidatesTags: ['Test']
 		}),
 		//Edit Test
-		editTest: builder.mutation<
-			{
-				data: TestInterface
-			},
-			UpdateTestDto
-		>({
+		editTest: builder.mutation<TestInterface, UpdateTestDto>({
 			query: dto => ({
 				url: `tests/${dto.id}`,
-				method: 'PUT',
-				body: {
-					data: dto
-				}
-			})
-			// invalidatesTags: ['Test']
+				method: 'PATCH',
+				body: dto
+			}),
+			invalidatesTags: ['Test']
 		}),
 		//Delete Test
-		deleteTest: builder.mutation<
-			{
-				data: TestInterface
-			},
-			number
-		>({
+		deleteTest: builder.mutation<TestInterface, number>({
 			query: testId => ({
 				url: `tests/${testId}`,
 				method: 'DELETE'

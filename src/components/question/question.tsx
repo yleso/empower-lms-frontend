@@ -1,23 +1,20 @@
-import { FC, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { FC, useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowUp, Check } from 'tabler-icons-react'
 import Field from '@/generic/field/field'
 import SmallDeleteButton from '@/components/generic/buttons/delete-buttons/small-delete-button/small-delete-button'
 import Button from '@/components/generic/buttons/primary-button/button'
 import Divider from '@/components/generic/divider/divider'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import answerApi from '@/store/api/answer.api'
 import questionApi from '@/store/api/question.api'
-import userProgressApi from '@/store/api/user-progress.api'
 import Text from '@/styles/text.module.scss'
 import { AnswerInterface, QuestionEditInterface } from './question.interface'
 import Styles from './question.module.scss'
-import { useLocation } from 'react-router-dom'
 
 
 const Question: FC<QuestionEditInterface> = ({
-	testId,
 	userProgress,
-	questionTestId,
 	question,
 	editing,
 	changeOrderFunction,
@@ -25,7 +22,7 @@ const Question: FC<QuestionEditInterface> = ({
 }) => {
 	//Hooks
 	//Ui hooks
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	//Hooks to work with api
 	//Set question name
 	const [questionName, setQuestionName] = useState<string>(question.name)
@@ -51,11 +48,11 @@ const Question: FC<QuestionEditInterface> = ({
 
 				return
 			}
-			
+
 			//Edit everything
 			await editEverything()
 		}
-		
+
 		//Check if it is first render and set it if not
 		if (!isMounted) return setIsMounted(true)
 
@@ -129,7 +126,7 @@ const Question: FC<QuestionEditInterface> = ({
 			}).then(response => {
 				//Get new question name from response
 				//@ts-ignore
-				const newQuestionName = response.data.data.attributes.name
+				const newQuestionName = response.data.name
 				//Set new question name to hook
 				setQuestionName(newQuestionName)
 			})
@@ -205,13 +202,7 @@ const Question: FC<QuestionEditInterface> = ({
 				}).then(response => {
 					//Get answer from response
 					//@ts-ignore
-					const editedAnswer = response.data.data
-					//Format answer received from response
-					const formattedEditedAnswer = {
-						id: editedAnswer.id,
-						name: editedAnswer.attributes.name,
-						right: editedAnswer.attributes.right
-					}
+					const editedAnswer = response.data
 
 					//Update answer list
 					setAnswers(currentAnswersList => {
@@ -220,10 +211,10 @@ const Question: FC<QuestionEditInterface> = ({
 
 						//Sort answers list
 						for (const currentAnswer of currentAnswersList) {
-							if (currentAnswer.id !== formattedEditedAnswer.id) {
+							if (currentAnswer.id !== editedAnswer.id) {
 								newAnswersList.push(currentAnswer)
 							} else {
-								newAnswersList.push(formattedEditedAnswer)
+								newAnswersList.push(editedAnswer)
 							}
 						}
 
@@ -241,16 +232,9 @@ const Question: FC<QuestionEditInterface> = ({
 		await createAnswerApi({ question: question.id }).then(response => {
 			//Answer fetched from response
 			//@ts-ignore
-			const dataFetchedAnswer = response.data.data
+			const newAnswer = response.data
 			//Check if something went wrong
-			if (!dataFetchedAnswer) return
-
-			//Sorting answer to answer list type
-			const newAnswer = {
-				id: dataFetchedAnswer.id,
-				name: dataFetchedAnswer.attributes.name,
-				right: dataFetchedAnswer.attributes.right
-			}
+			if (!newAnswer) return
 			//Adding answer to answer list
 			setAnswers(currentAnswerList => [...currentAnswerList, newAnswer])
 		})
@@ -309,156 +293,41 @@ const Question: FC<QuestionEditInterface> = ({
 		}
 	}, [answered])
 	//Api functions
-	const [editUserProgressApi] = userProgressApi.useEditUserProgressMutation()
-	//Get test questions
-	const { data: testQuestionsData } =
-		questionApi.useGetTestQuestionsQuery(testId)
+	const [answerQuestionApi] = questionApi.useAnswerQuestionMutation()
 	//For text answer question
 	const [textUserAnswer, setTextUserAnswer] = useState<string>('')
 	//Answer the question function
 	const answerTheQuestion = async () => {
-		//If question type is text
-		if (question.type === 'input') {
-			//Check does the answer is right
-			if (textUserAnswer === textAnswer) {
-				//Edit user progress
-				await editUserProgressApi({
-					id: userProgress.id,
-					questions: [...userProgress.questions, question.id]
-				})
-				//Mark test as passed
-				//Get array with test questions ids
-				const testQuestionsIds = (): number[] => {
-					//Create empty array
-					let testQuestionsIds: number[] = []
-					//Check is questions data empty
-					if (testQuestionsData) {
-						//Algorithm
-						for (const question of testQuestionsData?.data) {
-							testQuestionsIds.push(question.id)
-						}
-					}
-					//Return new array with ids
-					return testQuestionsIds
-				}
-				//Check is question test passed
-				const isTestPassed = (): boolean => {
-					let isTestPassed = true
-					if (testQuestionsIds().length !== userProgress.questions.length + 1) {
-						isTestPassed = false
-					}
-					for (const passedQuestion of userProgress.questions) {
-						if (!testQuestionsIds().includes(passedQuestion) && isTestPassed) {
-							isTestPassed = false
-						}
-					}
-					//Return is test passed boolean value
-					return isTestPassed
-				}
-				if (isTestPassed()) {
-					await editUserProgressApi({
-						id: Number(userProgress.id),
-						tests: [...userProgress.tests, questionTestId]
-					})
-				}
-				//Set question answered
-				setAnswered(true)
-			} else {
-				setAnsweredIncorrect(true)
-			}
-
-			return
-		}
-
-		//For other question types
+		//Get right answers ids
 		const getRightAnswersIds = () => {
+			//Initialize empty array
 			let rightAnswersIds: number[] = []
 
 			for (const answer of answers) {
-				if (answer.right) rightAnswersIds.push(answer.id)
+				//Get current anser input
+				const input = answersInputsRef.current[answer.id]
+				//Check is answer input checked and add it to the ids array
+				if (input.checked) rightAnswersIds.push(+answer.id)
 			}
 
 			return rightAnswersIds
 		}
-		//Right questions ids
-		const rightQuestionsIds = getRightAnswersIds()
 
-		//Get answers which student marked as right
-		const getMarkedAsRightAnswersIds = () => {
-			//Empty array
-			let answersIds: number[] = []
-			//Algorithm
-			for (const answer of answersInputsRef.current) {
-				if (answer) {
-					if (answer.checked) {
-						answersIds.push(Number(answer.id))
-					}
-				}
+		//Answer question
+		await answerQuestionApi({
+			id: question.id,
+			right_answers: getRightAnswersIds()
+		}).then(response => {
+			//Get answer value
+			//@ts-ignore
+			const isQuestionRight = response.data
+			//Check is answer right and edit test state then
+			if (isQuestionRight) {
+				setAnswered(isQuestionRight)
+			} else {
+				setAnsweredIncorrect(isQuestionRight)
 			}
-			//Return new array
-			return answersIds
-		}
-		//Array with answers which user marked as right
-		const markedAsRightAnswersIds = getMarkedAsRightAnswersIds()
-
-		//Check are the answers right
-		//Algorithm to get right answers
-		let right = true
-		if (rightQuestionsIds.length !== markedAsRightAnswersIds.length)
-			right = false
-		for (const markedAnswerId of markedAsRightAnswersIds) {
-			if (!rightQuestionsIds.includes(markedAnswerId) && right) {
-				right = false
-			}
-		}
-
-		if (right) {
-			//Mark test as passed
-			//Get array with test questions ids
-			const testQuestionsIds = (): number[] => {
-				//Create empty array
-				let testQuestionsIds: number[] = []
-				//Check is questions data empty
-				if (testQuestionsData) {
-					//Algorithm
-					for (const question of testQuestionsData?.data) {
-						testQuestionsIds.push(question.id)
-					}
-				}
-				//Return new array with ids
-				return testQuestionsIds
-			}
-			//Check is question test passed
-			const isTestPassed = (): boolean => {
-				let isTestPassed = true
-				if (testQuestionsIds().length !== userProgress.questions.length + 1) {
-					isTestPassed = false
-				}
-				for (const passedQuestion of userProgress.questions) {
-					if (!testQuestionsIds().includes(passedQuestion) && isTestPassed) {
-						isTestPassed = false
-					}
-				}
-				//Return is test passed boolean value
-				return isTestPassed
-			}
-			if (isTestPassed()) {
-				await editUserProgressApi({
-					id: Number(userProgress.id),
-					tests: [...userProgress.tests, questionTestId]
-				})
-			}
-
-			// Edit user progress
-			await editUserProgressApi({
-				id: userProgress.id,
-				questions: [...userProgress.questions, question.id]
-			})
-			// Set question answered
-			setAnswered(true)
-		} else {
-			setAnsweredIncorrect(true)
-		}
+		})
 	}
 	//END OF LEARNING PART
 
@@ -668,7 +537,12 @@ const Question: FC<QuestionEditInterface> = ({
 					<Button
 						clickFunction={answerTheQuestion}
 						text={'Answer'}
-						disabled={!isLearningPage || editing || answered || userProgress === undefined}
+						disabled={
+							!isLearningPage ||
+							editing ||
+							answered ||
+							userProgress === undefined
+						}
 						small
 						fill
 					/>

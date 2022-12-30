@@ -1,5 +1,5 @@
 export interface AuthFieldsInterface {
-	identifier: string
+	email: string
 	password: string
 }
 

@@ -1,13 +1,13 @@
-import { ThemeContext } from '@/context/theme.context'
-import { FC, useContext, useState } from 'react'
+import { FC, useState } from 'react'
 import { Check } from 'tabler-icons-react'
 import button from '@/components/generic/buttons/primary-button/button'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import Styles from './cookies.module.scss'
 
 
 const Cookies: FC = () => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	const getCookiesBar = (): boolean => {
 		const cookieBar = localStorage.getItem('cookies')

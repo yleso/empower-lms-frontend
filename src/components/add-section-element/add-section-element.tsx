@@ -1,6 +1,6 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import { AddSectionElementInterface } from '@/components/add-section-element/add-section-element.interface'
-import { ThemeContext } from '@/context/theme.context'
+import { useTheme } from '@/hooks/useTheme.hook'
 import Text from '@/styles/text.module.scss'
 import Styles from './add-section-element.module.scss'
 
@@ -9,7 +9,7 @@ const AddSectionElement: FC<AddSectionElementInterface> = ({
 	whatToAdd,
 	addFunction
 }) => {
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 
 	return (
 		<div

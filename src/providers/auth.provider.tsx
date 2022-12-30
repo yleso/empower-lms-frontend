@@ -1,15 +1,15 @@
-import { FC, PropsWithChildren } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import Loader from '@/components/loader/loader';
+import { FC, PropsWithChildren } from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
+import Loader from '@/components/loader/loader'
 import { useAuth } from '@/hooks/useAuth.hook'
 
 
 const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 	const { user, isLoading } = useAuth()
-	const path = useLocation().pathname
+	const { pathname } = useLocation()
 
 	if (isLoading) return <Loader />
-	if (path === ('/login' || '/register')) return <>{children}</>
+	if (pathname === ('/login' || '/register')) return <>{children}</>
 	if (!user) return <Navigate to={'/login'} />
 	return <>{children}</>
 }

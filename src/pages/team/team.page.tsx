@@ -1,16 +1,14 @@
-import React, { FC, useContext, useEffect, useMemo, useState } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import Page404 from '@/pages/404/404.page'
+import ErrorPage from '@/pages/error/error.page'
 import Faq from '@/components/FAQ/FAQ'
 import Course from '@/components/course/course'
 import {
 	AddButton,
 	EditButton as LargeEgitButton
 } from '@/components/generic/buttons/admin-buttons/big-buttons/admin-button'
-import EditButton from '@/components/generic/buttons/admin-buttons/edit-buton/edit-button'
 import Title from '@/components/generic/title/title'
 import Loader from '@/components/loader/loader'
-import Material from '@/components/material/material'
 import CoursePopup from '@/components/team-popups/course-popup/course-popup'
 import FaqPopup from '@/components/team-popups/faq-popup/faq-popup'
 import MaterialPopup from '@/components/team-popups/material-popup/material-popup'
@@ -18,9 +16,7 @@ import TeammatePopup from '@/components/team-popups/teammate-popup/teammate-popu
 import WordPopup from '@/components/team-popups/word-popup/word-popup'
 import Teammate from '@/components/teammate/teammate'
 import Word from '@/components/word/word'
-import { ThemeContext } from '@/context/theme.context'
 import { useAuth } from '@/hooks/useAuth.hook'
-import { useGetAuthRole } from '@/hooks/useGetAuthRole.hook'
 import { useOutside } from '@/hooks/useOutside.hook'
 import {
 	FilterWords,
@@ -33,7 +29,6 @@ import employeeApi from '@/store/api/employee.api'
 import faqApi from '@/store/api/faq.api'
 import materialApi from '@/store/api/material.api'
 import teamApi from '@/store/api/team.api'
-import userProgressApi from '@/store/api/user-progress.api'
 import wordApi from '@/store/api/word.api'
 import Text from '@/styles/text.module.scss'
 import Styles from './team.module.scss'
@@ -41,14 +36,10 @@ import Styles from './team.module.scss'
 
 const TeamPage: FC = () => {
 	//Hooks
-	//Ui hooks
-	const { darkmode } = useContext(ThemeContext)
 	//Hooks to work with api
 	const { team_id } = useParams()
 	//Get team id
 	const teamId = Number(team_id) || 0
-	//User role
-	const { userRole } = useGetAuthRole()
 	//User
 	const { user } = useAuth()
 	//User id
@@ -101,78 +92,38 @@ const TeamPage: FC = () => {
 	//Data fetching
 	//Team data
 	//Team
-	const { data: teamData, isLoading: teamLoading } =
-		teamApi.useGetTeamQuery(teamId)
+	const { data: team, isLoading: teamLoading } = teamApi.useGetTeamQuery(teamId)
 	//Courses
-	const { data: coursesData, isLoading: coursesLoading } =
+	const { data: courses, isLoading: coursesLoading } =
 		courseApi.useGetTeamCoursesQuery(teamId)
 	//Team employees
-	const { data: teamEmployeesData, isLoading: employeesLoading } =
+	const { data: teamEmployees, isLoading: employeesLoading } =
 		employeeApi.useGetTeamMembersQuery(teamId)
 	//Materials
 	const { data: materialsData, isLoading: materialsLoading } =
 		materialApi.useGetTeamMaterialsQuery(teamId)
 	//Words
-	const { data: wordsData, isLoading: wordsLoading } =
+	const { data: words, isLoading: wordsLoading } =
 		wordApi.useGetTeamWordsQuery(teamId)
 	//FAQs
-	const {
-		data: faqsData,
-		isLoading: faqLoading,
-		isFetching: faqFetching
-	} = faqApi.useGetTeamFaqsQuery(teamId)
+	const { data: faqsData, isLoading: faqLoading } =
+		faqApi.useGetTeamFaqsQuery(teamId)
 	//User assigned courses
 	const {
-		data: assignedCoursesData,
-		isFetching: progressFetching,
-		isLoading: progressLoading,
-		refetch: refetchProgresses
-	} = userProgressApi.useGetUserProgressesCoursesQuery(userId)
+		data: learnings,
+		isFetching: learningsFetching,
+		isLoading: learningsLoading
+	} = employeeApi.useGetEmployeeLearningsQuery(userId)
 	//End of data fetching
 
 	//Data sorting
-
-	//Team
-	const [team, setTeam] = useState(teamData?.data)
-	const [teamEmployees, setTeamEmployees] = useState(teamEmployeesData)
-	//Courses
-	const [courses, setCourses] = useState(coursesData?.data)
-	//Materials
-	const [materials, setMaterials] = useState(materialsData?.data)
-	//words
-	const [words, setWords] = useState(wordsData?.data)
 	//FAQs
-	const [faqs, setFaqs] = useState(faqsData?.data)
+	const [faqs, setFaqs] = useState(faqsData)
 
-	//UseEffects to work with api
-	//Team
+	//FAQs UseEffect to work with api
 	useEffect(() => {
-		setTeam(teamData?.data)
-	}, [teamData])
-	//Team employees
-	useEffect(() => {
-		setTeamEmployees(teamEmployeesData)
-	}, [teamEmployeesData])
-	//Courses
-	useEffect(() => {
-		setCourses(coursesData?.data)
-	}, [coursesData])
-	//Materials
-	useEffect(() => {
-		setMaterials(materialsData?.data)
-	}, [materialsData])
-	//words
-	useEffect(() => {
-		setWords(wordsData?.data)
-	}, [wordsLoading])
-	//FAQs
-	useEffect(() => {
-		setFaqs(faqsData?.data)
-	}, [faqFetching])
-	//User progress refetch
-	useEffect(() => {
-		refetchProgresses()
-	}, [])
+		setFaqs(faqsData)
+	}, [faqLoading])
 
 	//End of data sorting
 
@@ -181,17 +132,10 @@ const TeamPage: FC = () => {
 	//Word
 	//Delete word api
 	const [deleteWordApi] = wordApi.useDeleteWordMutation()
-	//Delete faq function
+	//Delete word function
 	const deleteWord = async (wordId: number) => {
-		//Delete current faq from faqs list
-		setWords(currentWordList =>
-			//@ts-ignore
-			currentWordList.filter(word => word.id !== wordId)
-		)
-		//Delete faq
 		await deleteWordApi(wordId)
 	}
-	//Faq
 	//Delete faq api
 	const [deleteFaqApi] = faqApi.useDeleteFaqMutation()
 	//Delete faq function
@@ -209,28 +153,17 @@ const TeamPage: FC = () => {
 	const filtredWords = FilterWords(words, activeFilter)
 	//Assigned courses ids array
 	const assignedCoursesIds = useMemo(() => {
-		//Empty array
-		let coursesIds: number[] = []
-		//Check does the progress data exist
-		if (assignedCoursesData?.data) {
-			//Add assigned courses ids to array
-			for (const userProgress of assignedCoursesData.data) {
-				coursesIds.push(userProgress.attributes.course.data.id)
-			}
-		}
-		//Return array
-		return coursesIds
-	}, [progressFetching])
+		if (learnings) return learnings.map(learning => learning.id)
+		else return []
+	}, [learningsFetching])
 
 	//Controls
-	const { data: userTeamData } = employeeApi.useGetEmployeeTeamQuery(userId)
-	const userTeamId = userTeamData?.data[0].id
-	const isUserInTeam = String(teamId) === String(userTeamId)
-	const userRoleType = userRole?.type || 'employee'
+	const userTeamId = user?.team_id || 0
+	const isUserInTeam = teamId === userTeamId
+	const userAccessLevel = user?.access_level || 1
+	const isUserAdmin = userAccessLevel === 4
 	const canUserEditAdmin =
-		userRoleType === 'administrator' ||
-		userRoleType === 'manager' ||
-		userRoleType === 'editor'
+		(userAccessLevel > 1 && userAccessLevel <= 3 && isUserInTeam) || isUserAdmin
 	const canUserEdit = isUserInTeam || canUserEditAdmin
 
 	if (
@@ -240,43 +173,39 @@ const TeamPage: FC = () => {
 		materialsLoading ||
 		wordsLoading ||
 		faqLoading ||
-		progressLoading
+		learningsLoading
 	)
 		return <Loader />
-	if (!team) return <Page404 />
+	if (!team) return <ErrorPage error={404} />
 
 	return (
 		<>
 			{/*Popups*/}
 			<CoursePopup
-				popupShow={courseShow}
-				setPopupShow={setCourseShow}
-				popupRef={courseRef}
-				setValue={setCourses}
+				isShow={courseShow}
+				setIsShow={setCourseShow}
+				reference={courseRef}
 			/>
 			<TeammatePopup
-				popupShow={teammateShow}
-				setPopupShow={setTeammateShow}
-				popupRef={teammateRef}
-				teamName={team.attributes.name}
-				setValue={setTeamEmployees}
+				isShow={teammateShow}
+				setIsShow={setTeammateShow}
+				reference={teammateRef}
+				teamName={team.name}
 			/>
 			<MaterialPopup
-				popupShow={materialShow}
-				setPopupShow={setMaterialShow}
-				popupRef={materialRef}
-				setValue={setMaterials}
+				isShow={materialShow}
+				setIsShow={setMaterialShow}
+				reference={materialRef}
 			/>
 			<WordPopup
-				popupShow={wordShow}
-				setPopupShow={setWordShow}
-				popupRef={wordRef}
-				setValue={setWords}
+				isShow={wordShow}
+				setIsShow={setWordShow}
+				reference={wordRef}
 			/>
 			<FaqPopup
-				popupShow={faqShow}
-				setPopupShow={setFaqShow}
-				popupRef={faqRef}
+				isShow={faqShow}
+				setIsShow={setFaqShow}
+				reference={faqRef}
 				setValue={setFaqs}
 			/>
 			{/*Popups*/}
@@ -284,7 +213,7 @@ const TeamPage: FC = () => {
 			<section className={Styles.Section}>
 				<div className={Styles.Header}>
 					<div className={Styles.HeaderTitle}>
-						<Title text={team?.attributes.name} />
+						<Title text={team?.name} />
 						{isUserInTeam && <span className={Styles.MyTeam}>My team</span>}
 					</div>
 					{canUserEditAdmin && <AddButton action={() => setCourseShow(true)} />}
@@ -294,20 +223,21 @@ const TeamPage: FC = () => {
 						courses.map(course => (
 							<div
 								className={`${
-									canUserEditAdmin && isUserInTeam && Styles.CursorPointer
+									((canUserEditAdmin && isUserInTeam) || isUserAdmin) &&
+									Styles.CursorPointer
 								}`}
 								key={course.id}
 								onClick={
-									canUserEditAdmin && isUserInTeam
+									(canUserEditAdmin && isUserInTeam) || isUserAdmin
 										? () => navigate(`/knowledge-base/course/${course.id}`)
 										: () => {}
 								}
 							>
 								<Course
 									id={course.id}
-									name={course.attributes.name}
-									description={course.attributes.description}
-									icons={course.attributes.icons.data}
+									name={course.name}
+									description={course.description}
+									icons={course.icons_urls}
 									disabled={
 										!isUserInTeam ||
 										canUserEditAdmin ||
@@ -334,8 +264,8 @@ const TeamPage: FC = () => {
 							<Link to={`/employee/${employee.id}`} key={employee.id}>
 								<Teammate
 									avatarPath={
-										employee.avatar
-											? `${BASE_API_URL}${employee?.avatar?.formats.thumbnail.url}`
+										employee.avatar_path
+											? `${BASE_API_URL}${employee.avatar_path}`
 											: 'https://via.placeholder.com/128'
 									}
 									name={employee.name}
@@ -418,8 +348,8 @@ const TeamPage: FC = () => {
 							<Word
 								key={word.id}
 								id={word.id}
-								name={word.attributes.name}
-								definition={word.attributes.definition}
+								name={word.name}
+								definition={word.definition}
 								editState={wordEdit}
 								deleteFunction={deleteWord}
 							/>
@@ -446,8 +376,8 @@ const TeamPage: FC = () => {
 							<Faq
 								key={FAQ.id}
 								id={FAQ.id}
-								question={FAQ.attributes.question}
-								answer={FAQ.attributes.answer}
+								question={FAQ.question}
+								answer={FAQ.answer}
 								editState={faqEdit}
 								deleteFunction={deleteFaq}
 							/>

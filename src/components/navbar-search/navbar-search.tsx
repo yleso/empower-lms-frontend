@@ -1,17 +1,20 @@
-import { FC, useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search } from 'tabler-icons-react';
-import { SearchResultInterface } from '@/components/navbar-search/search-result.interface';
-import { ThemeContext } from '@/context/theme.context';
-import searchApi from '@/store/api/search-api';
-import Text from '@/styles/text.module.scss';
-import Styles from './navbar-search.module.scss';
+import { FC, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Search } from 'tabler-icons-react'
+import { SearchResultInterface } from '@/components/navbar-search/search-result.interface'
+import { useTheme } from '@/hooks/useTheme.hook'
+import courseApi from '@/store/api/course.api'
+import employeeApi from '@/store/api/employee.api'
+import faqApi from '@/store/api/faq.api'
+import wordApi from '@/store/api/word.api'
+import Text from '@/styles/text.module.scss'
+import Styles from './navbar-search.module.scss'
 
 
 const NavbarSearch: FC = () => {
 	//Hooks
 	//Theme state hook
-	const { darkmode } = useContext(ThemeContext)
+	const { darkmode } = useTheme()
 	//Search text state hook
 	const [searchText, setSearchText] = useState<string>('')
 	//Search results state hook
@@ -20,16 +23,15 @@ const NavbarSearch: FC = () => {
 	//Search api functions
 	//Courses
 	const [searchCourses, { data: coursesSearchData }] =
-		searchApi.useSearchCoursesMutation()
+		courseApi.useSearchCoursesMutation()
 	//Employees
 	const [searchUsers, { data: usersSearchData }] =
-		searchApi.useSearchUsersMutation()
+		employeeApi.useSearchUsersMutation()
 	//Words
 	const [searchWords, { data: wordsSearchData }] =
-		searchApi.useSearchWordsMutation()
+		wordApi.useSearchWordsMutation()
 	//Faqs
-	const [searchFaqs, { data: faqsSearchData }] =
-		searchApi.useSearchFaqsMutation()
+	const [searchFaqs, { data: faqsSearchData }] = faqApi.useSearchFaqsMutation()
 
 	useEffect(() => {
 		if (searchText === '') return setSearchResults(undefined)
@@ -43,7 +45,7 @@ const NavbarSearch: FC = () => {
 				//Check is there course search data
 				if (coursesSearchData) {
 					//Set courses to the search results data
-					for (const course of coursesSearchData?.hits) {
+					for (const course of coursesSearchData) {
 						newSearchResults.push({
 							title: course.team.name,
 							text: course.description,
@@ -52,28 +54,33 @@ const NavbarSearch: FC = () => {
 					}
 				}
 			})
-			
+
 			//Search users
 			await searchUsers(searchText).then(() => {
 				//Check is there users search data
 				if (usersSearchData) {
 					//Set users to the search results data
-					for (const user of usersSearchData?.hits) {
-						newSearchResults.push({
-							title: `${user.name} ${user.surname}`,
-							text: user.email,
-							link: `/employee/${user.id.substring(5)}`
-						})
+					for (const user of usersSearchData) {
+						const searchResultsTexts = newSearchResults.map(
+							result => result.text
+						)
+						if (!searchResultsTexts.includes(user.email)) {
+							newSearchResults.push({
+								title: `${user.name} ${user.surname}`,
+								text: user.email,
+								link: `/employee/${user.id}`
+							})
+						}
 					}
 				}
 			})
-			
+
 			//Search words
 			await searchWords(searchText).then(() => {
 				//Check is there words search data
 				if (wordsSearchData) {
 					//Set users to the search results data
-					for (const word of wordsSearchData?.hits) {
+					for (const word of wordsSearchData) {
 						newSearchResults.push({
 							title: word.name,
 							text: word.definition,
@@ -82,13 +89,13 @@ const NavbarSearch: FC = () => {
 					}
 				}
 			})
-			
+
 			//Search faqs
 			await searchFaqs(searchText).then(() => {
 				//Check is there faqs search data
 				if (faqsSearchData) {
 					//Set users to the search results data
-					for (const faq of faqsSearchData?.hits) {
+					for (const faq of faqsSearchData) {
 						newSearchResults.push({
 							title: faq.question,
 							text: faq.answer,

@@ -11,7 +11,7 @@ const SidebarButton: FC = () => {
 
 	return (
 		<>
-			<CoursePopup popupShow={isShow} setPopupShow={setIsShow} popupRef={ref} />
+			<CoursePopup isShow={isShow} setIsShow={setIsShow} reference={ref} />
 			<button
 				type={'button'}
 				onClick={() => setIsShow(true)}
