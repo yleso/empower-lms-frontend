@@ -298,6 +298,16 @@ const Question: FC<QuestionEditInterface> = ({
 	const [textUserAnswer, setTextUserAnswer] = useState<string>('')
 	//Answer the question function
 	const answerTheQuestion = async () => {
+		//Answer text question
+		if (question.type === 'input') {
+			await answerQuestionApi({
+				id: question.id,
+				text_answer: textUserAnswer
+			})
+
+			return
+		}
+
 		//Get right answers ids
 		const getRightAnswersIds = () => {
 			//Initialize empty array
